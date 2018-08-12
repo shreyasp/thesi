@@ -1,0 +1,23 @@
+{
+  "compatibleVersion": 3,
+  "bundleVersion": 1,
+  "commands": [
+    {
+      "name": "my-command",
+      "identifier": "my-command-identifier",
+      "script": "./my-command.js"
+    },
+    {
+      "name": "Test",
+      "identifier": "test-command-identifier",
+      "script": "./test-command.js"
+    }
+  ],
+  "menu": {
+    "title": "thesi",
+    "items": [
+      "my-command-identifier",
+      "test-command-identifier"
+    ]
+  }
+}
