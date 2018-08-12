@@ -81,7 +81,7 @@ Object.defineProperty(exports, "__esModule", {
 
 exports["default"] = function (context) {
     log("Test messgae 😎 !!!");
-    context.document.showMessage("Test messgae 😎 !!!");
+    context.document.showMessage("Test message 😎 !!!");
 };
 
 /***/ })
