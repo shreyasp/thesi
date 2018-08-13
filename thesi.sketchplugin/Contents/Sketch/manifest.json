@@ -6,12 +6,18 @@
       "name": "Test",
       "identifier": "test-command-identifier",
       "script": "test-command.js"
+    },
+    {
+      "name": "Extract...",
+      "identifier": "extract-metadata-identifier",
+      "script": "extract-metadata.js"
     }
   ],
   "menu": {
     "title": "thesi",
     "items": [
-      "test-command-identifier"
+      "test-command-identifier",
+      "extract-metadata-identifier"
     ]
   },
   "version": "0.1.0",

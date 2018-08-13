@@ -9,3 +9,4 @@ npm-debug.log
 
 # mac
 .DS_Store
+yarn-error.log

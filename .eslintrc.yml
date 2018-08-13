@@ -7,7 +7,11 @@ extends:
 plugins:
   - no-not-accumulator-reassign
   - prettier
+  - import
 env:
     node: true
 rules:
   no-not-accumulator-reassign/no-not-accumulator-reassign: [2, ['reduce'], {props: true}]
+
+settings:
+  import/core-modules: [sketch, sketch/dom, sketch/data-supplier, sketch/async, sketch/settings, sketch/ui]
