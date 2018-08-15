@@ -44,7 +44,10 @@
   },
   "author": "Shreyas Patil <mail@shreyasp.com>",
   "dependencies": {
+    "@skpm/fs": "^0.1.4",
+    "@skpm/path": "^0.1.0",
+    "async": "^2.6.1",
     "lodash": "^4.17.10",
-    "async": "^2.6.1"
+    "sketch-utils": "skpm/sketch-utils"
   }
 }

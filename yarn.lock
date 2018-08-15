@@ -2,6 +2,10 @@
 # yarn lockfile v1
 
 
+"@skpm/buffer@*":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@skpm/buffer/-/buffer-0.1.0.tgz#a9056469f9a844b3705c9f197a56989d69b91a83"
+
 "@skpm/builder@^0.4.2":
   version "0.4.3"
   resolved "https://registry.yarnpkg.com/@skpm/builder/-/builder-0.4.3.tgz#c7fd4656623d0c42af74f63a52bdc0fc6a0cc6c7"
@@ -33,6 +37,14 @@
   dependencies:
     loader-utils "^1.0.2"
     schema-utils "^0.3.0"
+
+"@skpm/fs@*", "@skpm/fs@^0.1.4":
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/@skpm/fs/-/fs-0.1.4.tgz#9bd2ecc5eb18ce846b4b56068022dc7d5575f647"
+
+"@skpm/path@*", "@skpm/path@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@skpm/path/-/path-0.1.0.tgz#ae853e0641834de84cbdc03a89c55a6a1f76c7c4"
 
 "@skpm/sketch-debugger@^0.5.0":
   version "0.5.1"
@@ -3634,6 +3646,15 @@ sketch-polyfill-fetch@^0.3.0:
 sketch-utils@^0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/sketch-utils/-/sketch-utils-0.1.2.tgz#7c4d39ba19abe581e727d08c2cb70465bb74a81c"
+
+sketch-utils@skpm/sketch-utils:
+  version "0.2.3"
+  resolved "https://codeload.github.com/skpm/sketch-utils/tar.gz/92e3185470b4447b2a5c4cfaf9b2c1b942d4b255"
+  dependencies:
+    "@skpm/buffer" "*"
+    "@skpm/fs" "*"
+    "@skpm/path" "*"
+    source-map "^0.6.1"
 
 slash@^1.0.0:
   version "1.0.0"
