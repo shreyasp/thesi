@@ -57,6 +57,10 @@
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/@skpm/timers/-/timers-0.1.0.tgz#c9bc4fd0521e9bdb12efa0aa9a7b9382ee7ddc73"
 
+"@skpm/util@^0.1.18":
+  version "0.1.18"
+  resolved "https://registry.yarnpkg.com/@skpm/util/-/util-0.1.18.tgz#96d10fc3dbc617d17b319e82e30e4ddcdae9f2c8"
+
 "@skpm/utils@^0.1.6":
   version "0.1.6"
   resolved "https://registry.yarnpkg.com/@skpm/utils/-/utils-0.1.6.tgz#757a9657c68e13f51bee88e117fb679d621f891f"

@@ -65,7 +65,7 @@ var exports =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 6);
+/******/ 	return __webpack_require__(__webpack_require__.s = 8);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -73,7 +73,7 @@ var exports =
 /***/ (function(module, exports, __webpack_require__) {
 
 /* globals coscript, sketch */
-var fiberAvailable = __webpack_require__(9)
+var fiberAvailable = __webpack_require__(10)
 
 var setTimeout
 var clearTimeout
@@ -135,61 +135,6 @@ module.exports = {
 
 /***/ }),
 /* 1 */
-/***/ (function(module, exports) {
-
-var g;
-
-// This works in non-strict mode
-g = (function() {
-	return this;
-})();
-
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1,eval)("this");
-} catch(e) {
-	// This works if the window reference is available
-	if(typeof window === "object")
-		g = window;
-}
-
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
-
-module.exports = g;
-
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports) {
-
-module.exports = function(module) {
-	if(!module.webpackPolyfill) {
-		module.deprecate = function() {};
-		module.paths = [];
-		// module.parent = undefined by default
-		if(!module.children) module.children = [];
-		Object.defineProperty(module, "loaded", {
-			enumerable: true,
-			get: function() {
-				return module.l;
-			}
-		});
-		Object.defineProperty(module, "id", {
-			enumerable: true,
-			get: function() {
-				return module.i;
-			}
-		});
-		module.webpackPolyfill = 1;
-	}
-	return module;
-};
-
-
-/***/ }),
-/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(console) {/* globals log */
@@ -391,10 +336,277 @@ console._skpmEnabled = true
 
 module.exports = console
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* globals coscript, sketch */
+var timeout = __webpack_require__(0)
+
+function setImmediate(func, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10) {
+  return timeout.setTimeout(func, 0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10)
+}
+
+function clearImmediate(id) {
+  return timeout.clearTimeout(id)
+}
+
+module.exports = {
+  setImmediate: setImmediate,
+  clearImmediate: clearImmediate
+}
+
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(setTimeout, clearTimeout) {// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)["setTimeout"], __webpack_require__(0)["clearTimeout"]))
 
 /***/ }),
 /* 4 */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1,eval)("this");
+} catch(e) {
+	// This works if the window reference is available
+	if(typeof window === "object")
+		g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports) {
+
+module.exports = function(module) {
+	if(!module.webpackPolyfill) {
+		module.deprecate = function() {};
+		module.paths = [];
+		// module.parent = undefined by default
+		if(!module.children) module.children = [];
+		Object.defineProperty(module, "loaded", {
+			enumerable: true,
+			get: function() {
+				return module.l;
+			}
+		});
+		Object.defineProperty(module, "id", {
+			enumerable: true,
+			get: function() {
+				return module.i;
+			}
+		});
+		module.webpackPolyfill = 1;
+	}
+	return module;
+};
+
+
+/***/ }),
+/* 6 */
 /***/ (function(module, exports) {
 
 /* eslint-disable no-not-accumulator-reassign/no-not-accumulator-reassign, no-var, vars-on-top, prefer-template, prefer-arrow-callback, func-names, prefer-destructuring, object-shorthand */
@@ -447,7 +659,7 @@ module.exports = function prepareStackTrace(stackTrace) {
 
 
 /***/ }),
-/* 5 */
+/* 7 */
 /***/ (function(module, exports) {
 
 module.exports = function toArray(object) {
@@ -463,7 +675,7 @@ module.exports = function toArray(object) {
 
 
 /***/ }),
-/* 6 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -483,9 +695,13 @@ exports['default'] = function (context) {
   var layerMetaArr = [];
   _lodash2['default'].forEach(page.layers, function (board) {
     _lodash2['default'].forEach(board.layers, function (layerGroup) {
-      var parent = layerGroup.name;
+      var parentName = layerGroup.name;
+
+      // Actual co-ordinates based on page origin
+      var parentFrame = _lodash2['default'].pick(layerGroup.frame.toJSON(), ['x', 'y']);
+
       _async2['default'].each(layerGroup.layers, function (layer) {
-        layerMetaArr.push(extractMetaData(layer, parent));
+        layerMetaArr.push(extractMetaData(layer, parentName, parentFrame));
       }, function (err) {
         if (err) {
           context.document.showMessage(err.message);
@@ -496,10 +712,16 @@ exports['default'] = function (context) {
 
   // Save the template as PNG
   exportPNG(page);
+
+  // NOTE: For now we are saving the JSON in temporary path
+  // in future this would be feed to function call.
+  var jsonPath = _path2['default'].join('/tmp', 'meta.json');
+  _fs2['default'].writeFileSync(jsonPath, JSON.stringify(layerMetaArr));
+
   context.document.showMessage('Extracted layer metadata successfully 😎');
 };
 
-var _async = __webpack_require__(7);
+var _async = __webpack_require__(9);
 
 var _async2 = _interopRequireDefault(_async);
 
@@ -515,9 +737,20 @@ var _dom = __webpack_require__(18);
 
 var _dom2 = _interopRequireDefault(_dom);
 
+var _fs = __webpack_require__(19);
+
+var _fs2 = _interopRequireDefault(_fs);
+
+var _path = __webpack_require__(26);
+
+var _path2 = _interopRequireDefault(_path);
+
+var _util = __webpack_require__(20);
+
+var _util2 = _interopRequireDefault(_util);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-/* globals NSPredicate */
 function exportPNG(image, options) {
   var defaultOptions = {
     formats: 'png',
@@ -532,6 +765,7 @@ function exportPNG(image, options) {
 // This function is kind of niche extraction function written specifically
 // for purpose of extracting fonts as at present sketch-api objects don't
 // expose font attributes of text layer directly.
+/* globals NSPredicate */
 function extractLayerFontData(layer) {
   // Specific to MacOS
   var predicate = NSPredicate.predicateWithFormat('objectID CONTAINS[c] %@', layer.id);
@@ -546,8 +780,8 @@ function extractLayerFontData(layer) {
   var layerFontObject = filteredObject.attributedString.value.attributes[0].NSFont.attributes;
 
   return {
-    fontName: layerFontObject.NSFontNameAttribute,
-    fontSize: layerFontObject.NSFontSizeAttribute
+    fontName: _util2['default'].toJSObject(layerFontObject.NSFontNameAttribute),
+    fontSize: _util2['default'].toJSObject(layerFontObject.NSFontSizeAttribute)
   };
 }
 
@@ -559,29 +793,42 @@ function extractImageMetaData(layer, parent) {
   imageMetaObject.frame = _lodash2['default'].pick(layer.frame, frameKeys);
   imageMetaObject.style = _lodash2['default'].pick(layer.style, imageStyleKeys);
   imageMetaObject.layerParent = parent;
+  imageMetaObject.type = 'image';
+  imageMetaObject.name = _lodash2['default'].snakeCase(layer.name);
   exportPNG(layer);
 
   return imageMetaObject;
 }
 
-function extractTextMetadata(layer, parent) {
+function extractTextMetadata(layer, parentName, parentFrame) {
   var frameKeys = ['height', 'width', 'x', 'y'];
   var textStyleKeys = ['opacity'];
+  var frame = {};
+  var layerFrame = _lodash2['default'].pick(layer.frame, frameKeys);
+
+  // NOTE: Since all the children layers display the frame based
+  // on the parent layer. We need to compute actual position for
+  // the layer in page by transforming local co-ordinates to the
+  // page co-ordinates
+  frame.x = parentFrame.x + layerFrame.x;
+  frame.y = parentFrame.y + layerFrame.y;
 
   var textLayerMeta = {
     alignment: layer.alignment,
-    frame: _lodash2['default'].pick(layer.frame, frameKeys),
     style: _lodash2['default'].pick(layer.style, textStyleKeys),
     text: layer.text,
     font: extractLayerFontData(layer),
-    layerParent: parent
+    layerParent: parentName,
+    type: 'text',
+    name: _lodash2['default'].snakeCase(layer.name),
+    frame: frame
   };
-  textLayerMeta.style.color = _lodash2['default'].get(layer, 'style.fills[0].color');
 
+  textLayerMeta.style.color = _lodash2['default'].get(layer, 'style.fills[0].color');
   return textLayerMeta;
 }
 
-function extractMetaData(layer, parent) {
+function extractMetaData(layer, parentName, parentFrame) {
   /*
         Keys required to be extracted from the text layer
         Text Layer
@@ -614,12 +861,12 @@ function extractMetaData(layer, parent) {
   // Removing any dashes, underscores or spaces from the layer name
   // and converting it to camelCased key for preventing any issues
   // while saving to database :)
-  var layerName = _lodash2['default'].camelCase(layer.name);
+  // const layerName = _.camelCase(layer.name)
 
   if (layer.type === 'Image') {
-    data[layerName] = extractImageMetaData(layer, parent);
+    _lodash2['default'].assign(data, extractImageMetaData(layer, parentName));
   } else if (layer.type === 'Text') {
-    data[layerName] = extractTextMetadata(layer, parent);
+    _lodash2['default'].assign(data, extractTextMetadata(layer, parentName, parentFrame));
   }
 
   return data;
@@ -628,7 +875,7 @@ function extractMetaData(layer, parent) {
 // Entry Point for the Plugin
 
 /***/ }),
-/* 7 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(setImmediate, process, setTimeout, global, module, console, clearTimeout) {(function (global, factory) {
@@ -6241,31 +6488,10 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)["setImmediate"], __webpack_require__(10), __webpack_require__(0)["setTimeout"], __webpack_require__(1), __webpack_require__(2)(module), __webpack_require__(3), __webpack_require__(0)["clearTimeout"]))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)["setImmediate"], __webpack_require__(3), __webpack_require__(0)["setTimeout"], __webpack_require__(4), __webpack_require__(5)(module), __webpack_require__(1), __webpack_require__(0)["clearTimeout"]))
 
 /***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* globals coscript, sketch */
-var timeout = __webpack_require__(0)
-
-function setImmediate(func, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10) {
-  return timeout.setTimeout(func, 0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10)
-}
-
-function clearImmediate(id) {
-  return timeout.clearTimeout(id)
-}
-
-module.exports = {
-  setImmediate: setImmediate,
-  clearImmediate: clearImmediate
-}
-
-
-/***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports) {
 
 module.exports = function () {
@@ -6274,204 +6500,13 @@ module.exports = function () {
 
 
 /***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(setTimeout, clearTimeout) {// shim for using process in browser
-var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
-
-var cachedSetTimeout;
-var cachedClearTimeout;
-
-function defaultSetTimout() {
-    throw new Error('setTimeout has not been defined');
-}
-function defaultClearTimeout () {
-    throw new Error('clearTimeout has not been defined');
-}
-(function () {
-    try {
-        if (typeof setTimeout === 'function') {
-            cachedSetTimeout = setTimeout;
-        } else {
-            cachedSetTimeout = defaultSetTimout;
-        }
-    } catch (e) {
-        cachedSetTimeout = defaultSetTimout;
-    }
-    try {
-        if (typeof clearTimeout === 'function') {
-            cachedClearTimeout = clearTimeout;
-        } else {
-            cachedClearTimeout = defaultClearTimeout;
-        }
-    } catch (e) {
-        cachedClearTimeout = defaultClearTimeout;
-    }
-} ())
-function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    // if setTimeout wasn't available but was latter defined
-    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-        cachedSetTimeout = setTimeout;
-        return setTimeout(fun, 0);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch(e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
-    }
-
-
-}
-function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    // if clearTimeout wasn't available but was latter defined
-    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-        cachedClearTimeout = clearTimeout;
-        return clearTimeout(marker);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
-    }
-
-
-
-}
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = runTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    runClearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
-    }
-};
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-process.prependListener = noop;
-process.prependOnceListener = noop;
-
-process.listeners = function (name) { return [] }
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)["setTimeout"], __webpack_require__(0)["clearTimeout"]))
-
-/***/ }),
 /* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var prepareValue = __webpack_require__(12)
 
-module.exports.toArray = __webpack_require__(5)
-module.exports.prepareStackTrace = __webpack_require__(4)
+module.exports.toArray = __webpack_require__(7)
+module.exports.prepareStackTrace = __webpack_require__(6)
 module.exports.prepareValue = prepareValue
 module.exports.prepareObject = prepareValue.prepareObject
 module.exports.prepareArray = prepareValue.prepareArray
@@ -6482,8 +6517,8 @@ module.exports.prepareArray = prepareValue.prepareArray
 /***/ (function(module, exports, __webpack_require__) {
 
 /* eslint-disable no-not-accumulator-reassign/no-not-accumulator-reassign, no-var, vars-on-top, prefer-template, prefer-arrow-callback, func-names, prefer-destructuring, object-shorthand */
-var prepareStackTrace = __webpack_require__(4)
-var toArray = __webpack_require__(5)
+var prepareStackTrace = __webpack_require__(6)
+var toArray = __webpack_require__(7)
 
 function prepareArray(array, options) {
   return array.map(function(i) {
@@ -23837,7 +23872,7 @@ module.exports.SET_SCRIPT_RESULT = 'playground/SET_SCRIPT_RESULT'
   }
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(2)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4), __webpack_require__(5)(module)))
 
 /***/ }),
 /* 17 */
@@ -23850,6 +23885,2320 @@ module.exports = require("sketch");
 /***/ (function(module, exports) {
 
 module.exports = require("sketch/dom");
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports) {
+
+// TODO: async. Should probably be done with NSFileHandle and some notifications
+// TODO: file descriptor. Needs to be done with NSFileHandle
+
+module.exports.constants = {
+  F_OK: 0,
+  R_OK: 4,
+  W_OK: 2,
+  X_OK: 1
+}
+
+module.exports.accessSync = function(path, mode) {
+  mode = mode | 0
+  var fileManager = NSFileManager.defaultManager()
+
+  switch (mode) {
+    case 0:
+      return module.exports.existsSync(path)
+    case 1:
+      return Boolean(fileManager.isExecutableFileAtPath(path))
+    case 2:
+      return Boolean(fileManager.isWritableFileAtPath(path))
+    case 3:
+      return Boolean(fileManager.isExecutableFileAtPath(path) && fileManager.isWritableFileAtPath(path))
+    case 4:
+      return Boolean(fileManager.isReadableFileAtPath(path))
+    case 5:
+      return Boolean(fileManager.isReadableFileAtPath(path) && fileManager.isExecutableFileAtPath(path))
+    case 6:
+      return Boolean(fileManager.isReadableFileAtPath(path) && fileManager.isWritableFileAtPath(path))
+    case 7:
+      return Boolean(fileManager.isReadableFileAtPath(path) && fileManager.isWritableFileAtPath(path) && fileManager.isExecutableFileAtPath(path))
+  }
+}
+
+module.exports.appendFileSync = function(file, data, options) {
+  if (!module.exports.existsSync(file)) {
+    return module.exports.writeFileSync(file, data, options)
+  }
+
+  var handle = NSFileHandle.fileHandleForWritingAtPath(file)
+  handle.seekToEndOfFile()
+
+  if (data && data.mocha && data.mocha().class() === 'NSData') {
+    handle.writeData(data)
+    return
+  }
+
+  var encoding = options && options.encoding ? options.encoding : (options ? options : 'utf8')
+
+  var string = NSString.stringWithString(data)
+  var nsdata
+
+  switch (encoding) {
+    case 'utf8':
+      nsdata = string.dataUsingEncoding(NSUTF8StringEncoding)
+      break
+    case 'ascii':
+      nsdata = string.dataUsingEncoding(NSASCIIStringEncoding)
+      break
+    case 'utf16le':
+    case 'ucs2':
+      nsdata = string.dataUsingEncoding(NSUTF16LittleEndianStringEncoding)
+      break
+    case 'base64':
+      var plainData = string.dataUsingEncoding(NSUTF8StringEncoding)
+      nsdata = plainData.base64EncodedStringWithOptions(0).dataUsingEncoding(NSUTF8StringEncoding)
+      break
+    case 'latin1':
+    case 'binary':
+      nsdata = string.dataUsingEncoding(NSISOLatin1StringEncoding)
+      break
+    case 'hex':
+      // TODO: how?
+    default:
+      nsdata = string.dataUsingEncoding(NSUTF8StringEncoding)
+      break
+  }
+
+  handle.writeData(data)
+}
+
+module.exports.chmodSync = function(path, mode) {
+  var err = MOPointer.alloc().init()
+  var fileManager = NSFileManager.defaultManager()
+  fileManager.setAttributes_ofItemAtPath_error({
+    NSFilePosixPermissions: mode
+  }, path, err)
+
+  if (err.value() !== null) {
+    throw new Error(err.value())
+  }
+}
+
+module.exports.copyFileSync = function(path, dest, flags) {
+  var err = MOPointer.alloc().init()
+  var fileManager = NSFileManager.defaultManager()
+  fileManager.copyItemAtPath_toPath_error(path, dest, err)
+
+  if (err.value() !== null) {
+    throw new Error(err.value())
+  }
+}
+
+module.exports.existsSync = function(path) {
+  var fileManager = NSFileManager.defaultManager()
+  return Boolean(fileManager.fileExistsAtPath(path))
+}
+
+module.exports.linkSync = function(existingPath, newPath) {
+  var err = MOPointer.alloc().init()
+  var fileManager = NSFileManager.defaultManager()
+  fileManager.linkItemAtPath_toPath_error(existingPath, newPath, err)
+
+  if (err.value() !== null) {
+    throw new Error(err.value())
+  }
+}
+
+module.exports.mkdirSync = function(path, mode) {
+  mode = mode || 0o777
+  var err = MOPointer.alloc().init()
+  var fileManager = NSFileManager.defaultManager()
+  fileManager.createDirectoryAtPath_withIntermediateDirectories_attributes_error(path, false, {
+    NSFilePosixPermissions: mode
+  }, err)
+
+  if (err.value() !== null) {
+    throw new Error(err.value())
+  }
+}
+
+module.exports.mkdtempSync = function(path) {
+  function makeid() {
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for (var i = 0; i < 6; i++)
+      text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    return text;
+  }
+  var tempPath = path + makeid()
+  module.exports.mkdirSync(tempPath)
+  return tempPath
+}
+
+module.exports.readdirSync = function(path) {
+  var fileManager = NSFileManager.defaultManager()
+  var paths = fileManager.subpathsAtPath(path)
+  var arr = []
+  for (var i = 0; i < paths.length; i++) {
+    arr.push(paths[i])
+  }
+  return arr
+}
+
+module.exports.readFileSync = function(path, options) {
+  var encoding = options && options.encoding ? options.encoding : (options ? options : 'buffer')
+  var fileManager = NSFileManager.defaultManager()
+  var data = fileManager.contentsAtPath(path)
+  switch (encoding) {
+    case 'utf8':
+      return String(NSString.alloc().initWithData_encoding(data, NSUTF8StringEncoding))
+    case 'ascii':
+      return String(NSString.alloc().initWithData_encoding(data, NSASCIIStringEncoding))
+    case 'utf16le':
+    case 'ucs2':
+      return String(NSString.alloc().initWithData_encoding(data, NSUTF16LittleEndianStringEncoding))
+    case 'base64':
+      var nsdataDecoded = NSData.alloc().initWithBase64EncodedData_options(data, 0)
+      return String(NSString.alloc().initWithData_encoding(nsdataDecoded, NSUTF8StringEncoding))
+    case 'latin1':
+    case 'binary':
+      return String(NSString.alloc().initWithData_encoding(data, NSISOLatin1StringEncoding))
+    case 'hex':
+      // TODO: how?
+      return data
+    default:
+      return data
+  }
+}
+
+module.exports.readlinkSync = function(path) {
+  var err = MOPointer.alloc().init()
+  var fileManager = NSFileManager.defaultManager()
+  var result = fileManager.destinationOfSymbolicLinkAtPath_error(path, err)
+
+  if (err.value() !== null) {
+    throw new Error(err.value())
+  }
+
+  return result
+}
+
+module.exports.realpathSync = function(path) {
+  return NSString.stringByResolvingSymlinksInPath(path)
+}
+
+module.exports.renameSync = function(oldPath, newPath) {
+  var err = MOPointer.alloc().init()
+  var fileManager = NSFileManager.defaultManager()
+  fileManager.moveItemAtPath_toPath_error(oldPath, newPath, err)
+
+  if (err.value() !== null) {
+    throw new Error(err.value())
+  }
+}
+
+module.exports.rmdirSync = function(path) {
+  var err = MOPointer.alloc().init()
+  var fileManager = NSFileManager.defaultManager()
+  fileManager.removeItemAtPath_error(path, err)
+
+  if (err.value() !== null) {
+    throw new Error(err.value())
+  }
+}
+
+module.exports.statSync = function(path) {
+  var err = MOPointer.alloc().init()
+  var fileManager = NSFileManager.defaultManager()
+  var result = fileManager.attributesOfItemAtPath_error(path, err)
+
+  if (err.value() !== null) {
+    throw new Error(err.value())
+  }
+
+  return {
+    dev: String(result.NSFileDeviceIdentifier),
+    // ino: 48064969, The file system specific "Inode" number for the file.
+    mode: result.NSFileType | result.NSFilePosixPermissions,
+    nlink: Number(result.NSFileReferenceCount),
+    uid: String(result.NSFileOwnerAccountID),
+    gid: String(result.NSFileGroupOwnerAccountID),
+    // rdev: 0, A numeric device identifier if the file is considered "special".
+    size: Number(result.NSFileSize),
+    // blksize: 4096, The file system block size for i/o operations.
+    // blocks: 8, The number of blocks allocated for this file.
+    atimeMs: Number(result.NSFileModificationDate.timeIntervalSince1970()) * 1000,
+    mtimeMs: Number(result.NSFileModificationDate.timeIntervalSince1970()) * 1000,
+    ctimeMs: Number(result.NSFileModificationDate.timeIntervalSince1970()) * 1000,
+    birthtimeMs: Number(result.NSFileCreationDate.timeIntervalSince1970()) * 1000,
+    atime: new Date(Number(result.NSFileModificationDate.timeIntervalSince1970()) * 1000 + 0.5), // the 0.5 comes from the node source. Not sure why it's added but in doubt...
+    mtime: new Date(Number(result.NSFileModificationDate.timeIntervalSince1970()) * 1000 + 0.5),
+    ctime: new Date(Number(result.NSFileModificationDate.timeIntervalSince1970()) * 1000 + 0.5),
+    birthtime: new Date(Number(result.NSFileCreationDate.timeIntervalSince1970()) * 1000 + 0.5),
+    isBlockDevice: function() { return result.NSFileType === NSFileTypeBlockSpecial },
+    isCharacterDevice: function() { return result.NSFileType === NSFileTypeCharacterSpecial },
+    isDirectory: function() { return result.NSFileType === NSFileTypeDirectory },
+    isFIFO: function() { return false },
+    isFile: function() { return result.NSFileType === NSFileTypeRegular },
+    isSocket: function() { return result.NSFileType === NSFileTypeSocket },
+    isSymbolicLink: function() { return result.NSFileType === NSFileTypeSymbolicLink },
+  }
+}
+
+module.exports.symlinkSync = function(target, path) {
+  var err = MOPointer.alloc().init()
+  var fileManager = NSFileManager.defaultManager()
+  var result = fileManager.createSymbolicLinkAtPath_withDestinationPath_error(path, target, err)
+
+  if (err.value() !== null) {
+    throw new Error(err.value())
+  }
+}
+
+module.exports.truncateSync = function(path, len) {
+  var hFile = NSFileHandle.fileHandleForUpdatingAtPath(sFilePath)
+  hFile.truncateFileAtOffset(len || 0)
+  hFile.closeFile()
+}
+
+module.exports.unlinkSync = function(path) {
+  var err = MOPointer.alloc().init()
+  var fileManager = NSFileManager.defaultManager()
+  var result = fileManager.removeItemAtPath_error(path, err)
+
+  if (err.value() !== null) {
+    throw new Error(err.value())
+  }
+}
+
+module.exports.utimesSync = function(path, aTime, mTime) {
+  var err = MOPointer.alloc().init()
+  var fileManager = NSFileManager.defaultManager()
+  var result = fileManager.setAttributes_ofItemAtPath_error({
+    NSFileModificationDate: aTime
+  }, path, err)
+
+  if (err.value() !== null) {
+    throw new Error(err.value())
+  }
+}
+
+module.exports.writeFileSync = function(path, data, options) {
+  var encoding = options && options.encoding ? options.encoding : (options ? options : 'utf8')
+
+  if (data && data.mocha && data.mocha().class() === 'NSData') {
+    data.writeToFile_atomically(path, true)
+    return
+  }
+
+  var err = MOPointer.alloc().init()
+  var string = NSString.stringWithString(data)
+
+  switch (encoding) {
+    case 'utf8':
+      string.writeToFile_atomically_encoding_error(path, true, NSUTF8StringEncoding, err)
+      break
+    case 'ascii':
+      string.writeToFile_atomically_encoding_error(path, true, NSASCIIStringEncoding, err)
+      break
+    case 'utf16le':
+    case 'ucs2':
+      string.writeToFile_atomically_encoding_error(path, true, NSUTF16LittleEndianStringEncoding, err)
+      break
+    case 'base64':
+      var plainData = string.dataUsingEncoding(NSUTF8StringEncoding)
+      var nsdataEncoded = plainData.base64EncodedStringWithOptions(0)
+      nsdataEncoded.writeToFile_atomically(path, true)
+      break
+    case 'latin1':
+    case 'binary':
+      string.writeToFile_atomically_encoding_error(path, true, NSISOLatin1StringEncoding, err)
+      break
+    case 'hex':
+      // TODO: how?
+    default:
+      string.writeToFile_atomically_encoding_error(path, true, NSUTF8StringEncoding, err)
+      break
+  }
+
+  if (err.value() !== null) {
+    throw new Error(err.value())
+  }
+}
+
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(process, console) {// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+exports.callbackify = __webpack_require__(21)
+
+var debugs = {};
+var debugEnviron;
+exports.debuglog = function debuglog(set) {
+  if (isUndefined(debugEnviron) && typeof process != 'undefined') {
+    debugEnviron = process && process.env && process.env.NODE_DEBUG || '';
+  }
+  set = set.toUpperCase();
+  if (!debugs[set]) {
+    if (new RegExp('\\b' + set + '\\b', 'i').test(debugEnviron)) {
+      debugs[set] = function() {
+        var msg = exports.format.apply(exports, arguments);
+        console.error('%s: %s', set, msg);
+      };
+    } else {
+      debugs[set] = function() {};
+    }
+  }
+  return debugs[set];
+};
+
+exports.deprecate = __webpack_require__(22);
+
+var formatRegExp = /%[sdifjoO%]/g;
+exports.format = function(f) {
+  if (arguments.length <= 1) {
+    return inspect(f)
+  }
+  if (!isString(f)) {
+    var objects = [];
+    for (var i = 0; i < arguments.length; i++) {
+      objects.push(inspect(arguments[i]));
+    }
+    return objects.join(' ');
+  }
+
+  var i = 1;
+  var args = arguments;
+  var len = args.length;
+  var str = String(f).replace(formatRegExp, function(x) {
+    if (x === '%%') return '%';
+    if (i >= len) return x;
+    switch (x) {
+      case '%s': return String(args[i++]);
+      case '%d': return Number(args[i++]);
+      case '%i': return Number(args[i++]);
+      case '%f': return Number(args[i++]);
+      case '%j':
+        try {
+          return JSON.stringify(args[i++]);
+        } catch (_) {
+          return '[Circular]';
+        }
+      case '%o': return inspect(args[i++], { showHidden: true, depth: 4, showProxy: true });
+      case '%O': return inspect(args[i++]);
+      default:
+        return x;
+    }
+  });
+  for (var x = args[i]; i < len; x = args[++i]) {
+    if (isNull(x) || !isObject(x)) {
+      str += ' ' + x;
+    } else {
+      str += ' ' + inspect(x);
+    }
+  }
+  return str;
+};
+
+/**
+ * Inherit the prototype methods from one constructor into another.
+ *
+ * The Function.prototype.inherits from lang.js rewritten as a standalone
+ * function (not on Function.prototype). NOTE: If this file is to be loaded
+ * during bootstrapping this function needs to be rewritten using some native
+ * functions as prototype setup using normal JavaScript does not work as
+ * expected during bootstrapping (see mirror.js in r114903).
+ *
+ * @param {function} ctor Constructor function which needs to inherit the
+ *     prototype.
+ * @param {function} superCtor Constructor function to inherit prototype from.
+ */
+if (typeof Object.create === 'function') {
+  // implementation from standard node.js 'util' module
+  exports.inherits = function inherits(ctor, superCtor) {
+    ctor.super_ = superCtor
+    ctor.prototype = Object.create(superCtor.prototype, {
+      constructor: {
+        value: ctor,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+  };
+} else {
+  // old school shim for old browsers
+  exports.inherits = function inherits(ctor, superCtor) {
+    ctor.super_ = superCtor
+    var TempCtor = function () {}
+    TempCtor.prototype = superCtor.prototype
+    ctor.prototype = new TempCtor()
+    ctor.prototype.constructor = ctor
+  }
+}
+
+
+/**
+ * Echos the value of a value. Trys to print the value out
+ * in the best way possible given the different types.
+ *
+ * @param {Object} obj The object to print out.
+ * @param {Object} opts Optional options object that alters the output.
+ */
+/* legacy: obj, showHidden, depth, colors*/
+function inspect(obj, opts) {
+  // default options
+  var ctx = Object.assign({
+    seen: [],
+    indentationLvl: 0,
+    stylize: stylizeNoColor
+  }, inspect.defaultOptions, opts);
+
+  // set default options
+  if (ctx.colors) ctx.stylize = stylizeWithColor;
+  if (ctx.maxArrayLength === null) ctx.maxArrayLength = Infinity
+  return formatValue(ctx, obj, ctx.depth);
+}
+exports.inspect = inspect;
+
+inspect.defaultOptions = {
+  showHidden: false,
+  depth: 2,
+  colors: false,
+  customInspect: true,
+  showProxy: false,
+  maxArrayLength: 100,
+  breakLength: 60
+}
+
+// http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
+inspect.colors = {
+  'bold' : [1, 22],
+  'italic' : [3, 23],
+  'underline' : [4, 24],
+  'inverse' : [7, 27],
+  'white' : [37, 39],
+  'grey' : [90, 39],
+  'black' : [30, 39],
+  'blue' : [34, 39],
+  'cyan' : [36, 39],
+  'green' : [32, 39],
+  'magenta' : [35, 39],
+  'red' : [31, 39],
+  'yellow' : [33, 39]
+};
+
+// Don't use 'blue' not visible on cmd.exe
+inspect.styles = {
+  'special': 'cyan', // only applied to function
+  'number': 'yellow',
+  'boolean': 'yellow',
+  'undefined': 'grey',
+  'null': 'bold',
+  'string': 'green',
+  'date': 'magenta',
+  'regexp': 'red'
+};
+
+inspect.custom = 'inspect'
+
+
+function stylizeWithColor(str, styleType) {
+  var style = inspect.styles[styleType];
+
+  if (style) {
+    return '\u001b[' + inspect.colors[style][0] + 'm' + str +
+           '\u001b[' + inspect.colors[style][1] + 'm';
+  } else {
+    return str;
+  }
+}
+
+
+function stylizeNoColor(str, styleType) {
+  return str;
+}
+
+
+function arrayToHash(array) {
+  var hash = {};
+
+  array.forEach(function(val, idx) {
+    hash[val] = true;
+  });
+
+  return hash;
+}
+
+// getConstructorOf is wrapped into this to save iterations
+function getIdentificationOf(obj) {
+  var type = getNativeClass(obj)
+  if (type) {
+    return type
+  }
+  var original = obj;
+  var constructor = undefined;
+
+  while (obj) {
+    if (constructor === undefined) {
+      var desc = Object.getOwnPropertyDescriptor(obj, 'constructor');
+      if (desc !== undefined &&
+          typeof desc.value === 'function' &&
+          desc.value.name !== '')
+        constructor = desc.value.name;
+    }
+
+    if (constructor !== undefined)
+      break;
+
+    obj = Object.getPrototypeOf(obj);
+  }
+
+  return constructor;
+}
+
+function formatValue(ctx, value, recurseTimes, ln) {
+  var primitive = formatPrimitive(ctx.stylize, value, ctx);
+  if (primitive) {
+    return primitive;
+  }
+
+  // Provide a hook for user-specified inspect functions.
+  // Check that value is an object with an inspect function on it
+  if (ctx.customInspect && value) {
+    try {
+      var customInspect = value[inspect.custom] // can fail for some NSDistantObject
+      if (isFunction(customInspect) &&
+        // Filter out the util module, it's inspect function is special
+        customInspect !== exports.inspect &&
+        // Also filter out any prototype objects using the circular check.
+        !(value.constructor && value.constructor.prototype === value)) {
+        var ret = customInspect(recurseTimes, ctx);
+
+        // If the custom inspection method returned `this`, don't go into
+        // infinite recursion.
+        if (ret !== value) {
+          if (!isString(ret)) {
+            ret = formatValue(ctx, ret, recurseTimes);
+          }
+        }
+        return ret;
+      }
+    } catch (err) {}
+  }
+
+  var base = '';
+  var formatter = formatObject;
+  var braces = ['{', '}'];
+  var noIterator = true;
+  var raw;
+
+  // if it's a MOStruct, we need to catch it early so that it doesn't fail
+  if (getNativeClass(value) === 'MOStruct') {
+    braces = [value.name() + ' {', '}']
+    value = toObject(value)
+  }
+
+  if (value && value._isWrappedObject) {
+    const propertyList = value.constructor._DefinedPropertiesKey
+    const json = {}
+    Object.keys(propertyList).forEach(k => {
+      if (!propertyList[k].exportable) {
+        return
+      }
+      json[k] = value[k]
+      if (json[k] && !json[k]._isWrappedObject && json[k].toJSON) {
+        json[k] = json[k].toJSON()
+      }
+    })
+    value = json
+  }
+
+  var keys;
+
+  if (ctx.showHidden) {
+    keys = Object.getOwnPropertyNames(value);
+  } else {
+    keys = Object.keys(value)
+  }
+
+  var keyLength = keys.length
+
+  var constructor = getIdentificationOf(value);
+  var prefix = constructor ? (constructor + ' ') : '';
+
+  if (isArray(value)) {
+    noIterator = false
+    // Only set the constructor for non ordinary ("Array [...]") arrays.
+    braces = [(prefix === 'Array ' ? '' : prefix) + '[', ']'];
+    if (value.length === 0 && keyLength === 0)
+      return braces[0] + ']';
+    formatter = formatArray;
+  } else if (isFunction(value)) {
+    var name = (constructor === 'Object' ? 'function MOMethod' : constructor) + (value.name ? (': ' + value.name) : '');
+    if (keyLength === 0)
+      return ctx.stylize(`[${name}]`, 'special');
+    base = '[' + name + ']';
+  } else if (prefix === 'Object ') {
+    // Object fast path
+    if (keyLength === 0)
+      return '{}';
+  } else if (isRegExp(value)) {
+    // Make RegExps say that they are RegExps
+    if (keyLength === 0 || recurseTimes < 0)
+      return ctx.stylize(value.toString(), 'regexp');
+    base = RegExp.prototype.toString.call(value);
+  } else if (isDate(value)) {
+    if (keyLength === 0) {
+      if (Number.isNaN(value.getTime()))
+        return ctx.stylize(value.toString(), 'date');
+      return ctx.stylize(value.toISOString(), 'date');
+    }
+    // Make dates with properties first say the date
+    base = value.toISOString();
+  } else if (isError(value)) {
+    // Make error with message first say the error
+    if (keyLength === 0)
+      return formatError(value);
+    base = `${formatError(value)}`;
+  } else if (!isObject(value) && getNativeClass(value)) {
+    var description = value && value.description && String(value.description())
+    var nativeClass = getNativeClass(value)
+    if (description && description[0] === '<' && description.indexOf('>') > 0) {
+      // most of the MS* classes
+      return ctx.stylize(description.slice(0, description.indexOf('>') + 1), 'special')
+    } else if (description) {
+      // prefix the description with the class otherwise it can lead to some misunderstanding
+      return ctx.stylize('<' + nativeClass + '> ' + description, 'special')
+    } else {
+      return ctx.stylize('<' + getNativeClass(value) + '>', 'special')
+    }
+  } else if (isObject(value) && getNativeClass(value)) {
+    braces = [prefix + '{', '}'];
+  }
+
+  if (ctx.seen.indexOf(value) !== -1)
+    return ctx.stylize('[Circular]', 'special')
+
+  if (recurseTimes != null) {
+    if (recurseTimes < 0)
+      return ctx.stylize('[' + (constructor || 'Object') + ']', 'special');
+    recurseTimes -= 1;
+  }
+
+  ctx.seen.push(value);
+
+  var output = formatter(ctx, value, recurseTimes, keys);
+
+  ctx.seen.pop();
+
+  return reduceToSingleString(ctx, output, base, braces, ln);
+}
+
+function formatObject(ctx, value, recurseTimes, keys) {
+  value = toObject(value)
+  var len = keys.length;
+  var output = new Array(len);
+  for (var i = 0; i < len; i++)
+    output[i] = formatProperty(ctx, value, recurseTimes, keys[i], 0);
+  return output;
+}
+
+function formatNumber(fn, value) {
+  // Format -0 as '-0'. Checking `value === -0` won't distinguish 0 from -0.
+  if (Object.is(value, -0))
+    return fn('-0', 'number');
+  return fn('' + value, 'number');
+}
+
+var MIN_LINE_LENGTH = 16;
+var readableRegExps = {};
+
+var strEscapeSequencesRegExp = /[\x00-\x1f\x27\x5c]/;
+var strEscapeSequencesReplacer = /[\x00-\x1f\x27\x5c]/g;
+
+// Escaped special characters. Use empty strings to fill up unused entries.
+var meta = [
+  '\\u0000', '\\u0001', '\\u0002', '\\u0003', '\\u0004',
+  '\\u0005', '\\u0006', '\\u0007', '\\b', '\\t',
+  '\\n', '\\u000b', '\\f', '\\r', '\\u000e',
+  '\\u000f', '\\u0010', '\\u0011', '\\u0012', '\\u0013',
+  '\\u0014', '\\u0015', '\\u0016', '\\u0017', '\\u0018',
+  '\\u0019', '\\u001a', '\\u001b', '\\u001c', '\\u001d',
+  '\\u001e', '\\u001f', '', '', '',
+  '', '', '', '', "\\'", '', '', '', '', '',
+  '', '', '', '', '', '', '', '', '', '',
+  '', '', '', '', '', '', '', '', '', '',
+  '', '', '', '', '', '', '', '', '', '',
+  '', '', '', '', '', '', '', '', '', '',
+  '', '', '', '', '', '', '', '\\\\'
+];
+
+function escapeFn (str) { return meta[str.charCodeAt(0)] }
+
+// Escape control characters, single quotes and the backslash.
+// This is similar to JSON stringify escaping.
+function strEscape(str) {
+  // Some magic numbers that worked out fine while benchmarking with v8 6.0
+  if (str.length < 5000 && !strEscapeSequencesRegExp.test(str))
+    return '\'' + str + '\'';
+  if (str.length > 100)
+    return '\'' + str.replace(strEscapeSequencesReplacer, escapeFn) + '\'';
+  var result = '';
+  var last = 0;
+  for (var i = 0; i < str.length; i++) {
+    var point = str.charCodeAt(i);
+    if (point === 39 || point === 92 || point < 32) {
+      if (last === i) {
+        result += meta[point];
+      } else {
+        result += str.slice(last, i) + meta[point];
+      }
+      last = i + 1;
+    }
+  }
+  if (last === 0) {
+    result = str;
+  } else if (last !== i) {
+    result += str.slice(last);
+  }
+  return '\'' + result + '\'';
+}
+
+function formatPrimitive(fn, value, ctx) {
+  if (isUndefined(value)) {
+    return fn('undefined', 'undefined');
+  }
+  if (isString(value)) {
+    if (ctx.compact === false &&
+      value.length > MIN_LINE_LENGTH &&
+      ctx.indentationLvl + value.length > ctx.breakLength) {
+      var minLineLength = Math.max(ctx.breakLength - ctx.indentationLvl, MIN_LINE_LENGTH);
+      var averageLineLength = Math.ceil(value.length / Math.ceil(value.length / minLineLength));
+      var divisor = Math.max(averageLineLength, MIN_LINE_LENGTH);
+      var res = '';
+      if (readableRegExps[divisor] === undefined) {
+        // Build a new RegExp that naturally breaks text into multiple lines.
+        //
+        // Rules
+        // 1. Greedy match all text up the max line length that ends with a
+        //    whitespace or the end of the string.
+        // 2. If none matches, non-greedy match any text up to a whitespace or
+        //    the end of the string.
+        //
+        // eslint-disable-next-line max-len, node-core/no-unescaped-regexp-dot
+        readableRegExps[divisor] = new RegExp(`(.|\\n){1,${divisor}}(\\s|$)|(\\n|.)+?(\\s|$)`, 'gm');
+      }
+      var indent = getIndentation(ctx.indentationLvl);
+      var matches = value.match(readableRegExps[divisor]);
+      if (matches.length > 1) {
+        res += fn(strEscape(matches[0]), 'string') + ' +\n';
+        for (var i = 1; i < matches.length - 1; i++) {
+          res += indent + '  ' + fn(strEscape(matches[i]), 'string') + ' +\n';
+        }
+        res += indent + '  ' + fn(strEscape(matches[i]), 'string');
+        return res;
+      }
+    }
+    return fn(strEscape(value), 'string');
+  }
+  if (isNumber(value)) {
+    return formatNumber(fn, Number(value));
+  }
+  if (isBoolean(value)) {
+    return fn('' + Boolean(Number(value)), 'boolean');
+  }
+  if (isNull(value)) {
+    return fn('null', 'null');
+  }
+}
+
+
+function formatError(value) {
+  return value.stack || '[' + Error.prototype.toString.call(value) + ']';
+}
+
+
+function formatArray(ctx, value, recurseTimes, keys) {
+  value = toArray(value)
+  var len = Math.min(Math.max(0, ctx.maxArrayLength), value.length);
+  var hidden = ctx.showHidden ? 1 : 0;
+  var valLen = value.length;
+
+  var remaining = valLen - len;
+  var output = new Array(len + (remaining > 0 ? 1 : 0) + hidden);
+  for (var i = 0; i < len; i++)
+    output[i] = formatProperty(ctx, value, recurseTimes, keys[i] || i, 1);
+  if (remaining > 0)
+    output[i++] = '... ' + remaining + ' more item' + (remaining > 1 ? 's' : '');
+  if (ctx.showHidden === true)
+    output[i] = formatProperty(ctx, value, recurseTimes, 'length', 2);
+  return output;
+}
+
+var keyStrRegExp = /^[a-zA-Z_][a-zA-Z_0-9]*$/;
+
+function formatProperty(ctx, value, recurseTimes, key, array) {
+  var name, str, desc;
+  if (getNativeClass(value)) { // special case for native object
+    desc = { value: value[key], enumerable: true }
+  } else {
+    desc = Object.getOwnPropertyDescriptor(value, key) ||
+    { value: value[key], enumerable: true }
+  }
+
+  if (desc.value !== undefined) {
+    var diff = array !== 0 || ctx.compact === false ? 2 : 3;
+    ctx.indentationLvl += diff;
+    str = formatValue(ctx, desc.value, recurseTimes, array === 0);
+    ctx.indentationLvl -= diff;
+  } else if (desc.get !== undefined) {
+    if (desc.set !== undefined) {
+      str = ctx.stylize('[Getter/Setter]', 'special');
+    } else {
+      str = ctx.stylize('[Getter]', 'special');
+    }
+  } else if (desc.set !== undefined) {
+    str = ctx.stylize('[Setter]', 'special');
+  } else {
+    str = ctx.stylize('undefined', 'undefined');
+  }
+  if (array === 1) {
+    return str;
+  }
+  if (typeof key === 'symbol') {
+    name = '[' + ctx.stylize(key.toString(), 'symbol') + ']';
+  } else if (desc.enumerable === false) {
+    name = '[' + key + ']';
+  } else if (keyStrRegExp.test(key)) {
+    name = ctx.stylize(key, 'name');
+  } else {
+    name = ctx.stylize(strEscape(key), 'string');
+  }
+
+  return name + ': ' + str;
+}
+
+var colorRegExp = /\u001b\[\d\d?m/g;
+
+function removeColors(str) {
+  return str.replace(colorRegExp, '');
+}
+
+function getIndentation(indentationLvl) {
+  return Array.apply(null, Array(indentationLvl)).reduce(function(prev) { return prev + ' '}, '')
+}
+
+function reduceToSingleString(ctx, output, base, braces, addLn) {
+  var breakLength = ctx.breakLength;
+  var i = 0;
+  if (ctx.compact === false) {
+    var indentation = getIndentation(ctx.indentationLvl);
+    var res = (base ? (base + ' ') : '') + braces[0] + '\n' + indentation + '  ';
+    for (; i < output.length - 1; i++) {
+      res += output[i] + ',\n' + indentation + '  ';
+    }
+    res += output[i] + '\n' + indentation + braces[1];
+    return res;
+  }
+  if (output.length * 2 <= breakLength) {
+    var length = 0;
+    for (; i < output.length && length <= breakLength; i++) {
+      if (ctx.colors) {
+        length += removeColors(output[i]).length + 1;
+      } else {
+        length += output[i].length + 1;
+      }
+    }
+    if (length <= breakLength)
+      return braces[0] + (base ? (' ' + base) : '') + ' ' + output.join(', ') + ' ' +
+        braces[1];
+  }
+
+  var indentation = getIndentation(ctx.indentationLvl);
+
+  // If the opening "brace" is too large, like in the case of "Set {",
+  // we need to force the first item to be on the next line or the
+  // items will not line up correctly.
+  var extraLn = addLn === true ? ('\n' + indentation) : '';
+
+  var ln = base === '' && braces[0].length === 1 ?
+    ' ' : ((base ? (' ' + base) : base) + '\n' + indentation + '  ');
+  var str = output.join(',\n' + indentation + '  ');
+  return extraLn + braces[0] + ln + str + ' ' + braces[1];
+}
+
+// check if the argument is a native sketch object
+function getNativeClass(arg) {
+  try {
+    return arg && arg.isKindOfClass && typeof arg.class === 'function' && String(arg.class())
+  } catch (err) {
+    return undefined
+  }
+}
+exports.getNativeClass = getNativeClass
+
+function isNativeObject(arg) {
+  return !!getNativeClass(arg)
+}
+exports.isNativeObject = isNativeObject
+
+/**
+ * Coerce common NSObjects to their JS counterparts
+ * @param arg Any object
+ *
+ * Converts NSDictionary, NSArray, NSStirng, and NSNumber to
+ * native JS equivilents.
+ */
+function toJSObject(arg) {
+  if (arg) {
+    if (isObject(arg)) {
+      return toObject(arg)
+    } else if (isArray(arg)) {
+      return toArray(arg)
+    } else if (isString(arg)) {
+      return String(arg)
+    } else if (isNumber(arg)) {
+      return Number(arg)
+    } else if (isBoolean(arg)) {
+      return Boolean(Number(arg))
+    }
+  }
+  return arg
+}
+exports.toJSObject = toJSObject
+
+var assimilatedArrays = ['NSArray', 'NSMutableArray', '__NSArrayM', '__NSSingleObjectArrayI', '__NSArray0', '__NSArrayI', '__NSArrayReversed', '__NSCFArray', '__NSPlaceholderArray']
+function isArray(ar) {
+  if (Array.isArray(ar)) {
+    return true
+  }
+  var type = getNativeClass(ar)
+  return assimilatedArrays.indexOf(type) !== -1
+}
+exports.isArray = isArray;
+
+function toArray(object) {
+  if (Array.isArray(object)) {
+    return object
+  }
+  var arr = []
+  for (var j = 0; j < (object || []).length; j += 1) {
+    arr.push(object[j])
+  }
+  return arr
+}
+exports.toArray = toArray;
+
+var assimilatedBooleans = ['__NSCFBoolean']
+function isBoolean(arg) {
+  if (typeof arg === 'boolean') {
+    return true
+  }
+  var type = getNativeClass(arg)
+  return assimilatedBooleans.indexOf(type) !== -1
+}
+exports.isBoolean = isBoolean;
+
+function isNull(arg) {
+  return arg === null;
+}
+exports.isNull = isNull;
+
+function isNullOrUndefined(arg) {
+  return arg == null;
+}
+exports.isNullOrUndefined = isNullOrUndefined;
+
+var assimilatedNumbers = ['__NSCFNumber', 'NSNumber']
+function isNumber(arg) {
+  if (typeof arg === 'number') {
+    return true
+  }
+  var type = getNativeClass(arg)
+  return assimilatedNumbers.indexOf(type) !== -1
+}
+exports.isNumber = isNumber;
+
+var assimilatedStrings = ['NSString', 'NSMutableString', '__NSCFString', 'NSTaggedPointerString', '__NSCFConstantString']
+function isString(arg) {
+  if (typeof arg === 'string') {
+    return true
+  }
+  var type = getNativeClass(arg)
+  return assimilatedStrings.indexOf(type) !== -1
+}
+exports.isString = isString;
+
+function isSymbol(arg) {
+  return typeof arg === 'symbol';
+}
+exports.isSymbol = isSymbol;
+
+function isUndefined(arg) {
+  return typeof arg === 'undefined';
+}
+exports.isUndefined = isUndefined;
+
+function isRegExp(re) {
+  return isObject(re) && objectToString(re) === '[object RegExp]';
+}
+exports.isRegExp = isRegExp;
+
+var assimilatedObjects = ['NSDictionary', 'NSMutableDictionary', '__NSDictionaryM', '__NSSingleEntryDictionaryI', '__NSDictionaryI', '__NSCFDictionary', 'MOStruct', '__NSFrozenDictionaryM', '__NSDictionary0', '__NSPlaceholderDictionary']
+function isObject(arg) {
+  var type = getNativeClass(arg)
+  if (typeof arg === 'object' && arg !== null && !type) {
+    return true
+  }
+  return assimilatedObjects.indexOf(type) !== -1
+}
+exports.isObject = isObject;
+
+function toObject(obj) {
+  var type = getNativeClass(obj)
+  if (type === 'MOStruct') {
+    return obj.memberNames().reduce(function(prev, k) {
+      prev[k] = obj[k]
+      return prev
+    }, {})
+  } else if (typeof obj === 'object') {
+    return obj
+  }
+  return Object(obj)
+}
+exports.toObject = toObject;
+
+function isDate(d) {
+  return isObject(d) && objectToString(d) === '[object Date]';
+}
+exports.isDate = isDate;
+
+function isError(e) {
+  return isObject(e) &&
+      (objectToString(e) === '[object Error]' || e instanceof Error);
+}
+exports.isError = isError;
+
+function isFunction(arg) {
+  return typeof arg === 'function' || arg instanceof MOMethod;
+}
+exports.isFunction = isFunction;
+
+function isPrimitive(arg) {
+  return isNull(arg) ||
+         isBoolean(arg) ||
+         isNumber(arg) ||
+         isString(arg) ||
+         isSymbol(arg) ||
+         isUndefined(arg);
+}
+exports.isPrimitive = isPrimitive;
+
+exports.isBuffer = function isBuffer(arg) {
+  return arg && typeof arg === 'object'
+    && typeof arg.copy === 'function'
+    && typeof arg.fill === 'function'
+    && typeof arg.readUInt8 === 'function';
+};
+
+function objectToString(o) {
+  return Object.prototype.toString.call(o);
+}
+
+exports.isDeepStrictEqual = __webpack_require__(23)
+
+exports.promisify = __webpack_require__(24)
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3), __webpack_require__(1)))
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports) {
+
+module.exports = function callbackify(original) {
+  return function(callback) {
+    original().then(function (result) {
+      callback(null, result)
+    }).catch(function (err) {
+      if (err === null) {
+        err = new Error()
+        err.reason = null
+      }
+      callback(err)
+    })
+  }
+}
+
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(console) {// Mark that a method should not be used.
+// Returns a modified function which warns once by default.
+// If --no-deprecation is set, then it is a no-op.
+module.exports = function deprecate(fn, msg) {
+  var warned = false;
+  function deprecated() {
+    if (!warned) {
+      console.error(msg);
+      warned = true;
+    }
+    return fn.apply(this, arguments);
+  }
+
+  return deprecated;
+};
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports) {
+
+/*
+Copyright (c) 2008-2016 Pivotal Labs
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+*/
+
+/* eslint-disable */
+
+function iterableEquality(a, b) {
+  if (
+    typeof a !== 'object' ||
+    typeof b !== 'object' ||
+    Array.isArray(a) ||
+    Array.isArray(b)
+  ) {
+    return undefined
+  }
+  if (a && b && a.constructor !== b.constructor) {
+    // check if the object are natives and then shallow equal them
+    return a.sketchObject && b.sketchObject && a.sketchObject == b.sketchObject
+  }
+
+  if (a.size !== undefined) {
+    if (a.size !== b.size) {
+      return false
+    } else if (isA('Set', a)) {
+      var allFound = true
+      for (var aValue of a) {
+        if (!b.has(aValue)) {
+          allFound = false
+          break
+        }
+      }
+      if (allFound) {
+        return true
+      }
+    } else if (isA('Map', a)) {
+      var allFound = true
+      for (var aEntry of a) {
+        if (
+          !b.has(aEntry[0]) ||
+          !equals(aEntry[1], b.get(aEntry[0]), [iterableEquality])
+        ) {
+          allFound = false
+          break
+        }
+      }
+      if (allFound) {
+        return true
+      }
+    }
+  }
+
+  if (Object.keys(a).length !== Object.keys(a).length) {
+    return false
+  }
+
+  var aKeys = Object.keys(a).sort()
+  var bKeys = Object.keys(b).sort()
+
+  for (var i = 0; i < aKeys.length; i += 1) {
+    var aKey = aKeys[i]
+    var bKey = bKeys[i]
+    if (aKey !== bKey || !equals(a[aKey], b[bKey], [iterableEquality])) {
+      return false
+    }
+  }
+
+  return true
+}
+
+function isObjectWithKeys(a) {
+  return (
+    a !== null &&
+    typeof a === 'object' &&
+    !(a instanceof Error) &&
+    !(a instanceof Array) &&
+    !(a instanceof Date)
+  )
+}
+
+function subsetEquality(object, subset) {
+  if (!isObjectWithKeys(object) || !isObjectWithKeys(subset)) {
+    return undefined
+  }
+
+  return Object.keys(subset).every(function (key) {
+    return hasOwnProperty(object, key) &&
+      equals(object[key], subset[key], [iterableEquality, subsetEquality])
+  })
+}
+
+// Extracted out of jasmine 2.5.2
+function equals(a, b, customTesters) {
+  customTesters = customTesters || [iterableEquality]
+  return eq(a, b, [], [], customTesters)
+}
+
+function isAsymmetric(obj) {
+  return obj && isA('Function', obj.asymmetricMatch)
+}
+
+function asymmetricMatch(a, b) {
+  var asymmetricA = isAsymmetric(a),
+    asymmetricB = isAsymmetric(b)
+
+  if (asymmetricA && asymmetricB) {
+    return undefined
+  }
+
+  if (asymmetricA) {
+    return a.asymmetricMatch(b)
+  }
+
+  if (asymmetricB) {
+    return b.asymmetricMatch(a)
+  }
+}
+
+// Equality function lovingly adapted from isEqual in
+//   [Underscore](http://underscorejs.org)
+function eq(a, b, aStack, bStack, customTesters) {
+  var result = true
+
+  var asymmetricResult = asymmetricMatch(a, b)
+  if (asymmetricResult !== undefined) {
+    return asymmetricResult
+  }
+
+  for (var i = 0; i < customTesters.length; i++) {
+    var customTesterResult = customTesters[i](a, b)
+    if (customTesterResult !== undefined) {
+      return customTesterResult
+    }
+  }
+
+  if (a instanceof Error && b instanceof Error) {
+    return a.message == b.message
+  }
+
+  // Identical objects are equal. `0 === -0`, but they aren't identical.
+  // See the [Harmony `egal` proposal](http://wiki.ecmascript.org/doku.php?id=harmony:egal).
+  if (a === b) {
+    return a !== 0 || 1 / a == 1 / b
+  }
+  // A strict comparison is necessary because `null == undefined`.
+  if (a === null || b === null) {
+    return a === b
+  }
+  var className = Object.prototype.toString.call(a)
+  if (className != Object.prototype.toString.call(b)) {
+    return false
+  }
+  switch (className) {
+    // Strings, numbers, dates, and booleans are compared by value.
+    case '[object String]':
+      // Primitives and their corresponding object wrappers are equivalent; thus, `"5"` is
+      // equivalent to `new String("5")`.
+      return a == String(b)
+    case '[object Number]':
+      // `NaN`s are equivalent, but non-reflexive. An `egal` comparison is performed for
+      // other numeric values.
+      return a != +a ? b != +b : a === 0 ? 1 / a == 1 / b : a == +b
+    case '[object Date]':
+    case '[object Boolean]':
+      // Coerce dates and booleans to numeric primitive values. Dates are compared by their
+      // millisecond representations. Note that invalid dates with millisecond representations
+      // of `NaN` are not equivalent.
+      return +a == +b
+    // RegExps are compared by their source patterns and flags.
+    case '[object RegExp]':
+      return (
+        a.source == b.source &&
+        a.global == b.global &&
+        a.multiline == b.multiline &&
+        a.ignoreCase == b.ignoreCase
+      )
+  }
+  if (typeof a != 'object' || typeof b != 'object') {
+    return false
+  }
+
+  // Assume equality for cyclic structures. The algorithm for detecting cyclic
+  // structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.
+  var length = aStack.length
+  while (length--) {
+    // Linear search. Performance is inversely proportional to the number of
+    // unique nested structures.
+    if (aStack[length] == a) {
+      return bStack[length] == b
+    }
+  }
+  // Add the first object to the stack of traversed objects.
+  aStack.push(a)
+  bStack.push(b)
+  var size = 0
+  // Recursively compare objects and arrays.
+  // Compare array lengths to determine if a deep comparison is necessary.
+  if (className == '[object Array]') {
+    size = a.length
+    if (size !== b.length) {
+      return false
+    }
+
+    while (size--) {
+      result = eq(a[size], b[size], aStack, bStack, customTesters)
+      if (!result) {
+        return false
+      }
+    }
+  }
+
+  // Deep compare objects.
+  var aKeys = keys(a, className == '[object Array]'),
+    key
+  size = aKeys.length
+
+  // Ensure that both objects contain the same number of properties before comparing deep equality.
+  if (keys(b, className == '[object Array]').length !== size) {
+    return false
+  }
+
+  while (size--) {
+    key = aKeys[size]
+
+    // Deep compare each member
+    result = has(b, key) && eq(a[key], b[key], aStack, bStack, customTesters)
+
+    if (!result) {
+      return false
+    }
+  }
+  // Remove the first object from the stack of traversed objects.
+  aStack.pop()
+  bStack.pop()
+
+  return result
+}
+
+function keys(obj, isArray) {
+  var allKeys = (function(o) {
+    var keys = []
+    for (var key in o) {
+      if (has(o, key)) {
+        keys.push(key)
+      }
+    }
+    return keys.concat(Object.getOwnPropertySymbols(o))
+  })(obj)
+
+  if (!isArray) {
+    return allKeys
+  }
+
+  var extraKeys = []
+  if (allKeys.length === 0) {
+    return allKeys
+  }
+
+  for (var x = 0; x < allKeys.length; x++) {
+    if (!allKeys[x].match(/^[0-9]+$/)) {
+      extraKeys.push(allKeys[x])
+    }
+  }
+
+  return extraKeys
+}
+
+function has(obj, key) {
+  return (
+    Object.prototype.hasOwnProperty.call(obj, key) && obj[key] !== undefined
+  )
+}
+
+function isA(typeName, value) {
+  return Object.prototype.toString.apply(value) === '[object ' + typeName + ']'
+}
+
+module.exports = equals
+module.exports.iterableEquality = iterableEquality
+module.exports.subsetEquality = subsetEquality
+
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(Promise) {var customPromisify = 'promisify'
+
+function promisify(fn) {
+  if (fn[customPromisify]) {
+    return fn[customPromisify]
+  }
+  return function () {
+    var args = toArray(arguments)
+    return new Promise(function (resolve, reject) {
+      args.push(function (err, value) {
+        if (typeof err !== 'undefined' && err !== null) {
+          return reject(err)
+        }
+        return resolve(value)
+      })
+      fn.apply(this, args)
+    })
+  }
+}
+promisify.custom = customPromisify
+
+module.exports = promisify
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(25)))
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(setTimeout, setImmediate, console) {
+
+// Store setTimeout reference so promise-polyfill will be unaffected by
+// other code modifying setTimeout (like sinon.useFakeTimers())
+var setTimeoutFunc = setTimeout;
+
+function noop() {}
+
+// Polyfill for Function.prototype.bind
+function bind(fn, thisArg) {
+  return function() {
+    fn.apply(thisArg, arguments);
+  };
+}
+
+function Promise(fn) {
+  if (!(this instanceof Promise))
+    throw new TypeError('Promises must be constructed via new');
+  if (typeof fn !== 'function') throw new TypeError('not a function');
+  this._state = 0;
+  this._handled = false;
+  this._value = undefined;
+  this._deferreds = [];
+
+  doResolve(fn, this);
+}
+
+function handle(self, deferred) {
+  while (self._state === 3) {
+    self = self._value;
+  }
+  if (self._state === 0) {
+    self._deferreds.push(deferred);
+    return;
+  }
+  self._handled = true;
+  Promise._immediateFn(function() {
+    var cb = self._state === 1 ? deferred.onFulfilled : deferred.onRejected;
+    if (cb === null) {
+      (self._state === 1 ? resolve : reject)(deferred.promise, self._value);
+      return;
+    }
+    var ret;
+    try {
+      ret = cb(self._value);
+    } catch (e) {
+      reject(deferred.promise, e);
+      return;
+    }
+    resolve(deferred.promise, ret);
+  });
+}
+
+function resolve(self, newValue) {
+  try {
+    // Promise Resolution Procedure: https://github.com/promises-aplus/promises-spec#the-promise-resolution-procedure
+    if (newValue === self)
+      throw new TypeError('A promise cannot be resolved with itself.');
+    if (
+      newValue &&
+      (typeof newValue === 'object' || typeof newValue === 'function')
+    ) {
+      var then = newValue.then;
+      if (newValue instanceof Promise) {
+        self._state = 3;
+        self._value = newValue;
+        finale(self);
+        return;
+      } else if (typeof then === 'function') {
+        doResolve(bind(then, newValue), self);
+        return;
+      }
+    }
+    self._state = 1;
+    self._value = newValue;
+    finale(self);
+  } catch (e) {
+    reject(self, e);
+  }
+}
+
+function reject(self, newValue) {
+  self._state = 2;
+  self._value = newValue;
+  finale(self);
+}
+
+function finale(self) {
+  if (self._state === 2 && self._deferreds.length === 0) {
+    Promise._immediateFn(function() {
+      if (!self._handled) {
+        Promise._unhandledRejectionFn(self._value);
+      }
+    });
+  }
+
+  for (var i = 0, len = self._deferreds.length; i < len; i++) {
+    handle(self, self._deferreds[i]);
+  }
+  self._deferreds = null;
+}
+
+function Handler(onFulfilled, onRejected, promise) {
+  this.onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : null;
+  this.onRejected = typeof onRejected === 'function' ? onRejected : null;
+  this.promise = promise;
+}
+
+/**
+ * Take a potentially misbehaving resolver function and make sure
+ * onFulfilled and onRejected are only called once.
+ *
+ * Makes no guarantees about asynchrony.
+ */
+function doResolve(fn, self) {
+  var done = false;
+  try {
+    fn(
+      function(value) {
+        if (done) return;
+        done = true;
+        resolve(self, value);
+      },
+      function(reason) {
+        if (done) return;
+        done = true;
+        reject(self, reason);
+      }
+    );
+  } catch (ex) {
+    if (done) return;
+    done = true;
+    reject(self, ex);
+  }
+}
+
+Promise.prototype['catch'] = function(onRejected) {
+  return this.then(null, onRejected);
+};
+
+Promise.prototype.then = function(onFulfilled, onRejected) {
+  var prom = new this.constructor(noop);
+
+  handle(this, new Handler(onFulfilled, onRejected, prom));
+  return prom;
+};
+
+Promise.prototype['finally'] = function(callback) {
+  var constructor = this.constructor;
+  return this.then(
+    function(value) {
+      return constructor.resolve(callback()).then(function() {
+        return value;
+      });
+    },
+    function(reason) {
+      return constructor.resolve(callback()).then(function() {
+        return constructor.reject(reason);
+      });
+    }
+  );
+};
+
+Promise.all = function(arr) {
+  return new Promise(function(resolve, reject) {
+    if (!arr || typeof arr.length === 'undefined')
+      throw new TypeError('Promise.all accepts an array');
+    var args = Array.prototype.slice.call(arr);
+    if (args.length === 0) return resolve([]);
+    var remaining = args.length;
+
+    function res(i, val) {
+      try {
+        if (val && (typeof val === 'object' || typeof val === 'function')) {
+          var then = val.then;
+          if (typeof then === 'function') {
+            then.call(
+              val,
+              function(val) {
+                res(i, val);
+              },
+              reject
+            );
+            return;
+          }
+        }
+        args[i] = val;
+        if (--remaining === 0) {
+          resolve(args);
+        }
+      } catch (ex) {
+        reject(ex);
+      }
+    }
+
+    for (var i = 0; i < args.length; i++) {
+      res(i, args[i]);
+    }
+  });
+};
+
+Promise.resolve = function(value) {
+  if (value && typeof value === 'object' && value.constructor === Promise) {
+    return value;
+  }
+
+  return new Promise(function(resolve) {
+    resolve(value);
+  });
+};
+
+Promise.reject = function(value) {
+  return new Promise(function(resolve, reject) {
+    reject(value);
+  });
+};
+
+Promise.race = function(values) {
+  return new Promise(function(resolve, reject) {
+    for (var i = 0, len = values.length; i < len; i++) {
+      values[i].then(resolve, reject);
+    }
+  });
+};
+
+// Use polyfill for setImmediate for performance gains
+Promise._immediateFn =
+  (typeof setImmediate === 'function' &&
+    function(fn) {
+      setImmediate(fn);
+    }) ||
+  function(fn) {
+    setTimeoutFunc(fn, 0);
+  };
+
+Promise._unhandledRejectionFn = function _unhandledRejectionFn(err) {
+  if (typeof console !== 'undefined' && console) {
+    console.warn('Possible Unhandled Promise Rejection:', err); // eslint-disable-line no-console
+  }
+};
+
+module.exports = Promise;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)["setTimeout"], __webpack_require__(2)["setImmediate"], __webpack_require__(1)))
+
+/***/ }),
+/* 26 */
+/***/ (function(module, exports) {
+
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+// we only expose the posix implementation since Sketch only runs on macOS
+
+var CHAR_FORWARD_SLASH = 47
+var CHAR_DOT = 46
+
+// Resolves . and .. elements in a path with directory names
+function normalizeString(path, allowAboveRoot) {
+  var res = ''
+  var lastSegmentLength = 0
+  var lastSlash = -1
+  var dots = 0
+  var code
+  for (var i = 0; i <= path.length; i += 1) {
+    if (i < path.length) code = path.charCodeAt(i)
+    else if (code === CHAR_FORWARD_SLASH) break
+    else code = CHAR_FORWARD_SLASH
+    if (code === CHAR_FORWARD_SLASH) {
+      if (lastSlash === i - 1 || dots === 1) {
+        // NOOP
+      } else if (lastSlash !== i - 1 && dots === 2) {
+        if (
+          res.length < 2 ||
+          lastSegmentLength !== 2 ||
+          res.charCodeAt(res.length - 1) !== CHAR_DOT ||
+          res.charCodeAt(res.length - 2) !== CHAR_DOT
+        ) {
+          if (res.length > 2) {
+            var lastSlashIndex = res.lastIndexOf('/')
+            if (lastSlashIndex !== res.length - 1) {
+              if (lastSlashIndex === -1) {
+                res = ''
+                lastSegmentLength = 0
+              } else {
+                res = res.slice(0, lastSlashIndex)
+                lastSegmentLength = res.length - 1 - res.lastIndexOf('/')
+              }
+              lastSlash = i
+              dots = 0
+              continue
+            }
+          } else if (res.length === 2 || res.length === 1) {
+            res = ''
+            lastSegmentLength = 0
+            lastSlash = i
+            dots = 0
+            continue
+          }
+        }
+        if (allowAboveRoot) {
+          if (res.length > 0) res += '/..'
+          else res = '..'
+          lastSegmentLength = 2
+        }
+      } else {
+        if (res.length > 0) res += '/' + path.slice(lastSlash + 1, i)
+        else res = path.slice(lastSlash + 1, i)
+        lastSegmentLength = i - lastSlash - 1
+      }
+      lastSlash = i
+      dots = 0
+    } else if (code === CHAR_DOT && dots !== -1) {
+      ++dots
+    } else {
+      dots = -1
+    }
+  }
+  return res
+}
+
+function _format(sep, pathObject) {
+  var dir = pathObject.dir || pathObject.root
+  var base =
+    pathObject.base || (pathObject.name || '') + (pathObject.ext || '')
+  if (!dir) {
+    return base
+  }
+  if (dir === pathObject.root) {
+    return dir + base
+  }
+  return dir + sep + base
+}
+
+function normalizePath(path) {
+  if (typeof path === 'string') {
+    return path
+  }
+  if (path && path.class && typeof path.class === 'function') {
+    const className = String(path.class())
+    if (className === 'NSString') {
+      return String(path)
+    } else if (className === 'NSURL') {
+      return String(path.path())
+    }
+  }
+  throw new Error('path should be a string')
+}
+
+var posix = {
+  // path.resolve([from ...], to)
+  resolve: function resolve() {
+    var resolvedPath = ''
+    var resolvedAbsolute = false
+    var cwd
+
+    for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i -= 1) {
+      var path
+      if (i >= 0) path = arguments[i]
+      else {
+        if (cwd === undefined)
+          cwd = posix.dirname(String(__command.script().URL().path()) || MSPluginManager.defaultPluginURL())
+        path = cwd
+      }
+
+      path = normalizePath(path)
+
+      // Skip empty entries
+      if (path.length === 0) {
+        continue
+      }
+
+      resolvedPath = path + '/' + resolvedPath
+      resolvedAbsolute = path.charCodeAt(0) === CHAR_FORWARD_SLASH
+    }
+
+    // At this point the path should be resolved to a full absolute path, but
+    // handle relative paths to be safe (might happen when process.cwd() fails)
+
+    // Normalize the path
+    resolvedPath = normalizeString(resolvedPath, !resolvedAbsolute)
+
+    if (resolvedAbsolute) {
+      if (resolvedPath.length > 0) return '/' + resolvedPath
+      else return '/'
+    } else if (resolvedPath.length > 0) {
+      return resolvedPath
+    } else {
+      return '.'
+    }
+  },
+
+  normalize: function normalize(path) {
+    path = normalizePath(path)
+
+    if (path.length === 0) return '.'
+
+    var isAbsolute = path.charCodeAt(0) === CHAR_FORWARD_SLASH
+    var trailingSeparator =
+      path.charCodeAt(path.length - 1) === CHAR_FORWARD_SLASH
+
+    // Normalize the path
+    path = normalizeString(path, !isAbsolute)
+
+    if (path.length === 0 && !isAbsolute) path = '.'
+    if (path.length > 0 && trailingSeparator) path += '/'
+
+    if (isAbsolute) return '/' + path
+    return path
+  },
+
+  isAbsolute: function isAbsolute(path) {
+    path = normalizePath(path)
+    return path.length > 0 && path.charCodeAt(0) === CHAR_FORWARD_SLASH
+  },
+
+  join: function join() {
+    if (arguments.length === 0) return '.'
+    var joined
+    for (var i = 0; i < arguments.length; i += 1) {
+      var arg = arguments[i]
+      arg = normalizePath(arg)
+      if (arg.length > 0) {
+        if (joined === undefined) joined = arg
+        else joined += '/' + arg
+      }
+    }
+    if (joined === undefined) return '.'
+    return posix.normalize(joined)
+  },
+
+  relative: function relative(from, to) {
+    from = normalizePath(from)
+    to = normalizePath(to)
+
+    if (from === to) return ''
+
+    from = posix.resolve(from)
+    to = posix.resolve(to)
+
+    if (from === to) return ''
+
+    // Trim any leading backslashes
+    var fromStart = 1
+    for (; fromStart < from.length; fromStart += 1) {
+      if (from.charCodeAt(fromStart) !== CHAR_FORWARD_SLASH) break
+    }
+    var fromEnd = from.length
+    var fromLen = fromEnd - fromStart
+
+    // Trim any leading backslashes
+    var toStart = 1
+    for (; toStart < to.length; toStart += 1) {
+      if (to.charCodeAt(toStart) !== CHAR_FORWARD_SLASH) break
+    }
+    var toEnd = to.length
+    var toLen = toEnd - toStart
+
+    // Compare paths to find the longest common path from root
+    var length = fromLen < toLen ? fromLen : toLen
+    var lastCommonSep = -1
+    var i = 0
+    for (; i <= length; i += 1) {
+      if (i === length) {
+        if (toLen > length) {
+          if (to.charCodeAt(toStart + i) === CHAR_FORWARD_SLASH) {
+            // We get here if `from` is the exact base path for `to`.
+            // For example: from='/foo/bar'; to='/foo/bar/baz'
+            return to.slice(toStart + i + 1)
+          } else if (i === 0) {
+            // We get here if `from` is the root
+            // For example: from='/'; to='/foo'
+            return to.slice(toStart + i)
+          }
+        } else if (fromLen > length) {
+          if (from.charCodeAt(fromStart + i) === CHAR_FORWARD_SLASH) {
+            // We get here if `to` is the exact base path for `from`.
+            // For example: from='/foo/bar/baz'; to='/foo/bar'
+            lastCommonSep = i
+          } else if (i === 0) {
+            // We get here if `to` is the root.
+            // For example: from='/foo'; to='/'
+            lastCommonSep = 0
+          }
+        }
+        break
+      }
+      var fromCode = from.charCodeAt(fromStart + i)
+      var toCode = to.charCodeAt(toStart + i)
+      if (fromCode !== toCode) break
+      else if (fromCode === CHAR_FORWARD_SLASH) lastCommonSep = i
+    }
+
+    var out = ''
+    // Generate the relative path based on the path difference between `to`
+    // and `from`
+    for (i = fromStart + lastCommonSep + 1; i <= fromEnd; i += 1) {
+      if (i === fromEnd || from.charCodeAt(i) === CHAR_FORWARD_SLASH) {
+        if (out.length === 0) out += '..'
+        else out += '/..'
+      }
+    }
+
+    // Lastly, append the rest of the destination (`to`) path that comes after
+    // the common path parts
+    if (out.length > 0) return out + to.slice(toStart + lastCommonSep)
+    else {
+      toStart += lastCommonSep
+      if (to.charCodeAt(toStart) === CHAR_FORWARD_SLASH) toStart += 1
+      return to.slice(toStart)
+    }
+  },
+
+  toNamespacedPath: function toNamespacedPath(path) {
+    // Non-op on posix systems
+    return path
+  },
+
+  dirname: function dirname(path) {
+    path = normalizePath(path)
+    if (path.length === 0) return '.'
+    var code = path.charCodeAt(0)
+    var hasRoot = code === CHAR_FORWARD_SLASH
+    var end = -1
+    var matchedSlash = true
+    for (var i = path.length - 1; i >= 1; i -= 1) {
+      code = path.charCodeAt(i)
+      if (code === CHAR_FORWARD_SLASH) {
+        if (!matchedSlash) {
+          end = i
+          break
+        }
+      } else {
+        // We saw the first non-path separator
+        matchedSlash = false
+      }
+    }
+
+    if (end === -1) return hasRoot ? '/' : '.'
+    if (hasRoot && end === 1) return '//'
+    return path.slice(0, end)
+  },
+
+  basename: function basename(path, ext) {
+    if (ext !== undefined && typeof ext !== 'string')
+      throw new Error('ext should be a string')
+    path = normalizePath(path)
+
+    var start = 0
+    var end = -1
+    var matchedSlash = true
+    var i
+
+    if (ext !== undefined && ext.length > 0 && ext.length <= path.length) {
+      if (ext.length === path.length && ext === path) return ''
+      var extIdx = ext.length - 1
+      var firstNonSlashEnd = -1
+      for (i = path.length - 1; i >= 0; i -= 1) {
+        var code = path.charCodeAt(i)
+        if (code === CHAR_FORWARD_SLASH) {
+          // If we reached a path separator that was not part of a set of path
+          // separators at the end of the string, stop now
+          if (!matchedSlash) {
+            start = i + 1
+            break
+          }
+        } else {
+          if (firstNonSlashEnd === -1) {
+            // We saw the first non-path separator, remember this index in case
+            // we need it if the extension ends up not matching
+            matchedSlash = false
+            firstNonSlashEnd = i + 1
+          }
+          if (extIdx >= 0) {
+            // Try to match the explicit extension
+            if (code === ext.charCodeAt(extIdx)) {
+              if (--extIdx === -1) {
+                // We matched the extension, so mark this as the end of our path
+                // component
+                end = i
+              }
+            } else {
+              // Extension does not match, so our result is the entire path
+              // component
+              extIdx = -1
+              end = firstNonSlashEnd
+            }
+          }
+        }
+      }
+
+      if (start === end) end = firstNonSlashEnd
+      else if (end === -1) end = path.length
+      return path.slice(start, end)
+    } else {
+      for (i = path.length - 1; i >= 0; --i) {
+        if (path.charCodeAt(i) === CHAR_FORWARD_SLASH) {
+          // If we reached a path separator that was not part of a set of path
+          // separators at the end of the string, stop now
+          if (!matchedSlash) {
+            start = i + 1
+            break
+          }
+        } else if (end === -1) {
+          // We saw the first non-path separator, mark this as the end of our
+          // path component
+          matchedSlash = false
+          end = i + 1
+        }
+      }
+
+      if (end === -1) return ''
+      return path.slice(start, end)
+    }
+  },
+
+  extname: function extname(path) {
+    path = normalizePath(path)
+    var startDot = -1
+    var startPart = 0
+    var end = -1
+    var matchedSlash = true
+    // Track the state of characters (if any) we see before our first dot and
+    // after any path separator we find
+    var preDotState = 0
+    for (var i = path.length - 1; i >= 0; --i) {
+      var code = path.charCodeAt(i)
+      if (code === CHAR_FORWARD_SLASH) {
+        // If we reached a path separator that was not part of a set of path
+        // separators at the end of the string, stop now
+        if (!matchedSlash) {
+          startPart = i + 1
+          break
+        }
+        continue
+      }
+      if (end === -1) {
+        // We saw the first non-path separator, mark this as the end of our
+        // extension
+        matchedSlash = false
+        end = i + 1
+      }
+      if (code === CHAR_DOT) {
+        // If this is our first dot, mark it as the start of our extension
+        if (startDot === -1) startDot = i
+        else if (preDotState !== 1) preDotState = 1
+      } else if (startDot !== -1) {
+        // We saw a non-dot and non-path separator before our dot, so we should
+        // have a good chance at having a non-empty extension
+        preDotState = -1
+      }
+    }
+
+    if (
+      startDot === -1 ||
+      end === -1 ||
+      // We saw a non-dot character immediately before the dot
+      preDotState === 0 ||
+      // The (right-most) trimmed path component is exactly '..'
+      (preDotState === 1 && startDot === end - 1 && startDot === startPart + 1)
+    ) {
+      return ''
+    }
+    return path.slice(startDot, end)
+  },
+
+  format: function format(pathObject) {
+    if (pathObject === null || typeof pathObject !== 'object') {
+      throw new Error('pathObject should be an Object')
+    }
+    return _format('/', pathObject)
+  },
+
+  parse: function parse(path) {
+    path = normalizePath(path)
+
+    var ret = { root: '', dir: '', base: '', ext: '', name: '' }
+    if (path.length === 0) return ret
+    var code = path.charCodeAt(0)
+    var isAbsolute = code === CHAR_FORWARD_SLASH
+    var start
+    if (isAbsolute) {
+      ret.root = '/'
+      start = 1
+    } else {
+      start = 0
+    }
+    var startDot = -1
+    var startPart = 0
+    var end = -1
+    var matchedSlash = true
+    var i = path.length - 1
+
+    // Track the state of characters (if any) we see before our first dot and
+    // after any path separator we find
+    var preDotState = 0
+
+    // Get non-dir info
+    for (; i >= start; --i) {
+      code = path.charCodeAt(i)
+      if (code === CHAR_FORWARD_SLASH) {
+        // If we reached a path separator that was not part of a set of path
+        // separators at the end of the string, stop now
+        if (!matchedSlash) {
+          startPart = i + 1
+          break
+        }
+        continue
+      }
+      if (end === -1) {
+        // We saw the first non-path separator, mark this as the end of our
+        // extension
+        matchedSlash = false
+        end = i + 1
+      }
+      if (code === CHAR_DOT) {
+        // If this is our first dot, mark it as the start of our extension
+        if (startDot === -1) startDot = i
+        else if (preDotState !== 1) preDotState = 1
+      } else if (startDot !== -1) {
+        // We saw a non-dot and non-path separator before our dot, so we should
+        // have a good chance at having a non-empty extension
+        preDotState = -1
+      }
+    }
+
+    if (
+      startDot === -1 ||
+      end === -1 ||
+      // We saw a non-dot character immediately before the dot
+      preDotState === 0 ||
+      // The (right-most) trimmed path component is exactly '..'
+      (preDotState === 1 && startDot === end - 1 && startDot === startPart + 1)
+    ) {
+      if (end !== -1) {
+        if (startPart === 0 && isAbsolute)
+          ret.base = ret.name = path.slice(1, end)
+        else ret.base = ret.name = path.slice(startPart, end)
+      }
+    } else {
+      if (startPart === 0 && isAbsolute) {
+        ret.name = path.slice(1, startDot)
+        ret.base = path.slice(1, end)
+      } else {
+        ret.name = path.slice(startPart, startDot)
+        ret.base = path.slice(startPart, end)
+      }
+      ret.ext = path.slice(startDot, end)
+    }
+
+    if (startPart > 0) ret.dir = path.slice(0, startPart - 1)
+    else if (isAbsolute) ret.dir = '/'
+
+    return ret
+  },
+
+  sep: '/',
+  delimiter: ':',
+  win32: null,
+  posix: null,
+}
+
+posix.posix = posix
+
+module.exports = posix
+
 
 /***/ })
 /******/ ]);

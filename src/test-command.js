@@ -1,4 +1,4 @@
 export default function(context) {
-    log("Test messgae 😎 !!!");
-    context.document.showMessage("Test message 😎 !!!");
+  log('Test message 😎 !!!')
+  context.document.showMessage('Test message 😎 !!!')
 }

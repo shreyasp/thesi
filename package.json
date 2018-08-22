@@ -46,6 +46,7 @@
   "dependencies": {
     "@skpm/fs": "^0.1.4",
     "@skpm/path": "^0.1.0",
+    "@skpm/util": "^0.1.18",
     "async": "^2.6.1",
     "lodash": "^4.17.10",
     "sketch-utils": "skpm/sketch-utils"

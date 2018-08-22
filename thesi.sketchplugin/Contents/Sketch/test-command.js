@@ -76,12 +76,12 @@ var exports =
 
 
 Object.defineProperty(exports, "__esModule", {
-    value: true
+  value: true
 });
 
-exports["default"] = function (context) {
-    log("Test messgae 😎 !!!");
-    context.document.showMessage("Test message 😎 !!!");
+exports['default'] = function (context) {
+  log('Test message 😎 !!!');
+  context.document.showMessage('Test message 😎 !!!');
 };
 
 /***/ })
