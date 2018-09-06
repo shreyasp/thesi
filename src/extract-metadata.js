@@ -1,4 +1,5 @@
 /* globals NSPredicate */
+/* eslint no-bitwise: [2, {allow: ["|", "&"]}] */
 import async from 'async'
 import _ from 'lodash'
 import sketch from 'sketch'
@@ -7,11 +8,22 @@ import fs from '@skpm/fs'
 import path from '@skpm/path'
 import util from '@skpm/util'
 
-function exportPNG(image, options) {
+function generateUUID() {
+  let d = new Date().getTime()
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = (d + Math.random() * 16) % 16 | 0
+    d = Math.floor(d / 16)
+    return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16)
+  })
+}
+
+function exportPNG(image, suffix, fileHash, options) {
   const defaultOptions = {
     formats: 'png',
     scale: '1',
     'save-for-web': true,
+    output: `/tmp/thesi/${fileHash}/images/${suffix}`,
+    'use-id-for-name': true,
   }
 
   defaultOptions['save-for-web'] = !!options && options.formats === 'png'
@@ -46,7 +58,7 @@ function extractLayerFontData(layer) {
   }
 }
 
-function extractImageMetaData(layer, parent) {
+function extractImageMetaData(layer, parent, fileHash) {
   const frameKeys = ['height', 'width', 'x', 'y']
   const imageStyleKeys = ['opacity']
   const imageMetaObject = {}
@@ -56,7 +68,7 @@ function extractImageMetaData(layer, parent) {
   imageMetaObject.layerParent = parent
   imageMetaObject.type = 'image'
   imageMetaObject.name = _.snakeCase(layer.name)
-  exportPNG(layer)
+  exportPNG(layer, 'background', fileHash)
 
   return imageMetaObject
 }
@@ -89,7 +101,7 @@ function extractTextMetadata(layer, parentName, parentFrame) {
   return textLayerMeta
 }
 
-function extractMetaData(layer, parentName, parentFrame) {
+function extractMetaData(layer, parentName, parentFrame, fileHash) {
   /*
         Keys required to be extracted from the text layer
         Text Layer
@@ -126,7 +138,7 @@ function extractMetaData(layer, parentName, parentFrame) {
   // const layerName = _.camelCase(layer.name)
 
   if (layer.type === 'Image') {
-    _.assign(data, extractImageMetaData(layer, parentName))
+    _.assign(data, extractImageMetaData(layer, parentName, fileHash))
   } else if (layer.type === 'Text') {
     _.assign(data, extractTextMetadata(layer, parentName, parentFrame))
   }
@@ -138,7 +150,8 @@ function extractMetaData(layer, parentName, parentFrame) {
 export default function(context) {
   // Get wrapped native Document object from Context
   const doc = sketch.fromNative(context.document)
-  const page = doc.selectedPage
+  const page = doc && doc.selectedPage
+  const fileHash = generateUUID()
 
   // Hierarchy for extraction
   // Doc -> Page -> Layer/Artboard -> Layer-Group -> Layer -> Metadata
@@ -153,7 +166,9 @@ export default function(context) {
       async.each(
         layerGroup.layers,
         layer => {
-          layerMetaArr.push(extractMetaData(layer, parentName, parentFrame))
+          layerMetaArr.push(
+            extractMetaData(layer, parentName, parentFrame, fileHash)
+          )
         },
         err => {
           if (err) {
@@ -165,12 +180,15 @@ export default function(context) {
   })
 
   // Save the template as PNG
-  exportPNG(page)
+  exportPNG(page, 'template', fileHash)
 
   // NOTE: For now we are saving the JSON in temporary path
   // in future this would be feed to function call.
-  const jsonPath = path.join('/tmp', 'meta.json')
+  const jsonPath = path.join('/tmp/thesi', `${fileHash}.json`)
   fs.writeFileSync(jsonPath, JSON.stringify(layerMetaArr))
+
+  // Note: Propogate the filehash to next function for picking up proper
+  // files from the directory
 
   context.document.showMessage('Extracted layer metadata successfully 😎')
 }
