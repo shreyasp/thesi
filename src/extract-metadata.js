@@ -1,5 +1,6 @@
 /* globals NSPredicate */
 /* eslint no-bitwise: [2, {allow: ["|", "&"]}] */
+
 import async from 'async'
 import _ from 'lodash'
 import sketch from 'sketch'
@@ -103,39 +104,38 @@ function extractTextMetadata(layer, parentName, parentFrame) {
 
 function extractMetaData(layer, parentName, parentFrame, fileHash) {
   /*
-        Keys required to be extracted from the text layer
-        Text Layer
-            |-  alignment
-            |-  frame
-                |- height
-                |- width
-                |- x
-                |- y
-            |-  name
-            |-  style
-                |-  opacity
-                |-  fills
-                    |- color
-            |-  text
+    Keys required to be extracted from the text layer
+    Text Layer
+        |-  alignment
+        |-  frame
+            |- height
+            |- width
+            |- x
+            |- y
+        |-  name
+        |-  style
+            |-  opacity
+            |-  fills
+                |- color
+        |-  text
 
-        -----------------------------------------------
-        Keys required to be extracted from the image layer
-        Image Layer
-            |- name
-            |- frame
-                |- height
-                |- width
-                |- x
-                |- y
-            |- image (to be exported directly as PNG)
-            |- style (optional)
-    */
+    -----------------------------------------------
+    Keys required to be extracted from the image layer
+    Image Layer
+        |- name
+        |- frame
+            |- height
+            |- width
+            |- x
+            |- y
+        |- image (to be exported directly as PNG)
+        |- style (optional)
+  */
   const data = {}
 
   // Removing any dashes, underscores or spaces from the layer name
   // and converting it to camelCased key for preventing any issues
   // while saving to database :)
-  // const layerName = _.camelCase(layer.name)
 
   if (layer.type === 'Image') {
     _.assign(data, extractImageMetaData(layer, parentName, fileHash))

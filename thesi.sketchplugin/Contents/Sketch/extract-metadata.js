@@ -872,12 +872,10 @@ function __skpm_run(key, context) {
         }
 
         function generateUUID() {
-          // Public Domain/MIT
           var d = new Date().getTime()
           return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
             /[xy]/g,
             function(c) {
-              /* jslint bitwise: true */
               var r = (d + Math.random() * 16) % 16 | 0
               d = Math.floor(d / 16)
               return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16)
@@ -991,38 +989,37 @@ function __skpm_run(key, context) {
 
         function extractMetaData(layer, parentName, parentFrame, fileHash) {
           /*
-        Keys required to be extracted from the text layer
-        Text Layer
-            |-  alignment
-            |-  frame
-                |- height
-                |- width
-                |- x
-                |- y
-            |-  name
-            |-  style
-                |-  opacity
-                |-  fills
-                    |- color
-            |-  text
-         -----------------------------------------------
-        Keys required to be extracted from the image layer
-        Image Layer
-            |- name
-            |- frame
-                |- height
-                |- width
-                |- x
-                |- y
-            |- image (to be exported directly as PNG)
-            |- style (optional)
-    */
+    Keys required to be extracted from the text layer
+    Text Layer
+        |-  alignment
+        |-  frame
+            |- height
+            |- width
+            |- x
+            |- y
+        |-  name
+        |-  style
+            |-  opacity
+            |-  fills
+                |- color
+        |-  text
+     -----------------------------------------------
+    Keys required to be extracted from the image layer
+    Image Layer
+        |- name
+        |- frame
+            |- height
+            |- width
+            |- x
+            |- y
+        |- image (to be exported directly as PNG)
+        |- style (optional)
+  */
           var data = {}
 
           // Removing any dashes, underscores or spaces from the layer name
           // and converting it to camelCased key for preventing any issues
           // while saving to database :)
-          // const layerName = _.camelCase(layer.name)
 
           if (layer.type === 'Image') {
             _lodash2['default'].assign(
