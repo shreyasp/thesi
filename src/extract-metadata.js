@@ -1,13 +1,12 @@
 /* globals NSPredicate */
 /* eslint no-bitwise: [2, {allow: ["|", "&"]}] */
-
+import fs from '@skpm/fs'
+import path from '@skpm/path'
+import util from '@skpm/util'
 import async from 'async'
 import _ from 'lodash'
 import sketch from 'sketch'
 import sketchDOM from 'sketch/dom'
-import fs from '@skpm/fs'
-import path from '@skpm/path'
-import util from '@skpm/util'
 
 function generateUUID() {
   let d = new Date().getTime()
@@ -68,10 +67,9 @@ function extractImageMetaData(layer, parent, fileHash) {
   imageMetaObject.style = _.pick(layer.style, imageStyleKeys)
   imageMetaObject.layerParent = parent
   imageMetaObject.type = 'image'
-  imageMetaObject.name = _.snakeCase(layer.name)
   exportPNG(layer, 'background', fileHash)
 
-  return imageMetaObject
+  return { [_.snakeCase(layer.name)]: imageMetaObject }
 }
 
 function extractTextMetadata(layer, parentName, parentFrame) {
@@ -94,12 +92,11 @@ function extractTextMetadata(layer, parentName, parentFrame) {
     font: extractLayerFontData(layer),
     layerParent: parentName,
     type: 'text',
-    name: _.snakeCase(layer.name),
     frame,
   }
 
   textLayerMeta.style.color = _.get(layer, 'style.fills[0].color')
-  return textLayerMeta
+  return { [_.snakeCase(layer.name)]: textLayerMeta }
 }
 
 function extractMetaData(layer, parentName, parentFrame, fileHash) {
@@ -155,7 +152,7 @@ export default function(context) {
 
   // Hierarchy for extraction
   // Doc -> Page -> Layer/Artboard -> Layer-Group -> Layer -> Metadata
-  const layerMetaArr = []
+  const layerMetaObj = {}
   _.forEach(page.layers, board => {
     _.forEach(board.layers, layerGroup => {
       const parentName = layerGroup.name
@@ -166,7 +163,8 @@ export default function(context) {
       async.each(
         layerGroup.layers,
         layer => {
-          layerMetaArr.push(
+          _.assign(
+            layerMetaObj,
             extractMetaData(layer, parentName, parentFrame, fileHash)
           )
         },
@@ -185,7 +183,7 @@ export default function(context) {
   // NOTE: For now we are saving the JSON in temporary path
   // in future this would be feed to function call.
   const jsonPath = path.join('/tmp/thesi', `${fileHash}.json`)
-  fs.writeFileSync(jsonPath, JSON.stringify(layerMetaArr))
+  fs.writeFileSync(jsonPath, JSON.stringify(layerMetaObj))
 
   // Note: Propogate the filehash to next function for picking up proper
   // files from the directory
