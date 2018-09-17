@@ -82,8 +82,10 @@ function extractTextMetadata(layer, parentName, parentFrame) {
   // on the parent layer. We need to compute actual position for
   // the layer in page by transforming local co-ordinates to the
   // page co-ordinates
-  frame.x = parentFrame.x + layerFrame.x
-  frame.y = parentFrame.y + layerFrame.y
+  frame.x = parentFrame.x + layer.frame.asCGRect().origin.x
+  frame.y = parentFrame.y + layer.frame.asCGRect().origin.y
+  frame.width = layerFrame.width
+  frame.height = layerFrame.height
 
   const textLayerMeta = {
     alignment: layer.alignment,
