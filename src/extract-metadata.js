@@ -236,10 +236,28 @@ export default function(context) {
             )
           })
         })
+
+        // NOTE: Collect unique fonts required by the template
+        const fonts = _.uniq(
+          _.map(
+            _.filter(layerMetaObj, o => o.type === 'text'),
+            l => l.font.fontName
+          )
+        )
+
         // Save the template as PNG
         exportPNG(page, 'template', fileHash)
-        extractTemplDataCB(null, { layerMetaObj })
+        extractTemplDataCB(null, {
+          layerMetaObj,
+          fonts,
+        })
       },
+      getTemplateFonts: [
+        'extractTemplateData',
+        (results, getTemplFontsCB) => {
+          getTemplFontsCB(null, results.extractTemplateData.layerMetaObj)
+        },
+      ],
     },
     Infinity,
     (err, results) => {
@@ -250,7 +268,7 @@ export default function(context) {
         // Note: Propogate the filehash to next function for picking up proper
         // files from the directory
         context.document.showMessage('Extracted layer metadata successfully 😎')
-        context.document.showMessage(results) // Need to remove this line during final commit
+        context.document.showMessage(results)
       }
     }
   )

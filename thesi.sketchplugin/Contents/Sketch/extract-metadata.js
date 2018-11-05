@@ -1165,13 +1165,38 @@ function __skpm_run(key, context) {
                       )
                     })
                   })
+
+                  // NOTE: Collect unique fonts required by the template
+                  var fonts = _lodash2['default'].uniq(
+                    _lodash2['default'].map(
+                      _lodash2['default'].filter(layerMetaObj, function(o) {
+                        return o.type === 'text'
+                      }),
+                      function(l) {
+                        return l.font.fontName
+                      }
+                    )
+                  )
+
                   // Save the template as PNG
                   exportPNG(page, 'template', fileHash)
-                  extractTemplDataCB(null, { layerMetaObj: layerMetaObj })
+                  extractTemplDataCB(null, {
+                    layerMetaObj: layerMetaObj,
+                    fonts: fonts,
+                  })
                 }
 
                 return extractTemplateData
               })(),
+              getTemplateFonts: [
+                'extractTemplateData',
+                function(results, getTemplFontsCB) {
+                  getTemplFontsCB(
+                    null,
+                    results.extractTemplateData.layerMetaObj
+                  )
+                },
+              ],
             },
             Infinity,
             function(err, results) {
@@ -1183,9 +1208,7 @@ function __skpm_run(key, context) {
               } else {
                 // Note: Propogate the filehash to next function for picking up proper
                 // files from the directory
-                context.document.showMessage(
-                  'Extracted layer metadata successfully 😎'
-                )
+                // context.document.showMessage('Extracted layer metadata successfully 😎')
                 log(results)
               }
             }
