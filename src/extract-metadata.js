@@ -6,7 +6,9 @@ import util from '@skpm/util'
 import async from 'async'
 import _ from 'lodash'
 import sketch from 'sketch'
+import fetch from 'sketch-polyfill-fetch'
 import sketchDOM from 'sketch/dom'
+import UI from 'sketch/ui'
 
 function generateUUID() {
   let d = new Date().getTime()
@@ -69,7 +71,9 @@ function extractImageMetaData(layer, parent, fileHash) {
   imageMetaObject.type = 'image'
   exportPNG(layer, 'background', fileHash)
 
-  return { [_.snakeCase(layer.name)]: imageMetaObject }
+  return {
+    [_.snakeCase(layer.name)]: imageMetaObject,
+  }
 }
 
 function extractTextMetadata(layer, parentName, parentFrame) {
@@ -98,7 +102,9 @@ function extractTextMetadata(layer, parentName, parentFrame) {
   }
 
   textLayerMeta.style.color = _.get(layer, 'style.fills[0].color')
-  return { [_.snakeCase(layer.name)]: textLayerMeta }
+  return {
+    [_.snakeCase(layer.name)]: textLayerMeta,
+  }
 }
 
 function extractMetaData(layer, parentName, parentFrame, fileHash) {
@@ -151,44 +157,105 @@ export default function(context) {
   const doc = sketch.fromNative(context.document)
   const page = doc && doc.selectedPage
   const fileHash = generateUUID()
-
-  // Hierarchy for extraction
-  // Doc -> Page -> Layer/Artboard -> Layer-Group -> Layer -> Metadata
+  const baseURL = 'https://status-node-api.shreyasp.com/'
   const layerMetaObj = {}
-  _.forEach(page.layers, board => {
-    _.forEach(board.layers, layerGroup => {
-      const parentName = layerGroup.name
 
-      // Actual co-ordinates based on page origin
-      const parentFrame = _.pick(layerGroup.frame.toJSON(), ['x', 'y'])
+  async.auto(
+    {
+      getCategories: getCategoryCB => {
+        fetch(`${baseURL}/category/`)
+          .then(response => response.json())
+          .then(data => getCategoryCB(null, data))
+          .catch(err => getCategoryCB(err))
+      },
+      getSelectedCategory: [
+        'getCategories',
+        (results, getSelCategoryCB) => {
+          const categories = _.map(results.getCategories, o => o.displayName)
+          const selection = UI.getSelectionFromUser(
+            'Please select a category for the template',
+            categories
+          )
 
-      async.each(
-        layerGroup.layers,
-        layer => {
-          _.assign(
-            layerMetaObj,
-            extractMetaData(layer, parentName, parentFrame, fileHash)
+          // NOTE: Selection is an array of size 3
+          // selection[0] === Response Code NSAlertFirstButtonReturn or NSAlertSecondButtonReturn
+          // selection[1] === index of selected option
+          // selection[2] === whether user clicked on Ok or Cancel button on the dialog
+          if (!selection[2]) {
+            getSelCategoryCB({
+              break: true,
+              error: false,
+            })
+          }
+
+          const selectedCategory = categories[selection[1]]
+          getSelCategoryCB(
+            null,
+            _.filter(
+              results.getCategories,
+              o => o.displayName === selectedCategory
+            )
           )
         },
-        err => {
-          if (err) {
-            context.document.showMessage(err.message)
-          }
-        }
-      )
-    })
-  })
+      ],
+      getImageName: [
+        'getSelectedCategory',
+        (results, getImageNameCB) => {
+          const imageName = UI.getStringFromUser(
+            'Please enter unique name for the template: ',
+            'Template Image Name'
+          )
+          getImageNameCB(null, {
+            imageName,
+          })
+        },
+      ],
+      extractTemplateData: extractTemplDataCB => {
+        // Hierarchy for extraction
+        // Doc -> Page -> Layer/Artboard -> Layer-Group -> Layer -> Metadata
+        _.forEach(page.layers, board => {
+          _.forEach(board.layers, layerGroup => {
+            const parentName = layerGroup.name
 
-  // Save the template as PNG
-  exportPNG(page, 'template', fileHash)
+            // Actual co-ordinates based on page origin
+            const parentFrame = _.pick(layerGroup.frame.toJSON(), ['x', 'y'])
 
+            async.each(
+              layerGroup.layers,
+              layer => {
+                _.assign(
+                  layerMetaObj,
+                  extractMetaData(layer, parentName, parentFrame, fileHash)
+                )
+              },
+              err => {
+                if (err) {
+                  extractTemplDataCB(err)
+                }
+              }
+            )
+          })
+        })
+        // Save the template as PNG
+        exportPNG(page, 'template', fileHash)
+        extractTemplDataCB(null, { layerMetaObj })
+      },
+    },
+    Infinity,
+    (err, results) => {
+      if (err) {
+        if (err.break)
+          context.document.showMessage('Template Extraction was aborted')
+      } else {
+        // Note: Propogate the filehash to next function for picking up proper
+        // files from the directory
+        context.document.showMessage('Extracted layer metadata successfully 😎')
+        context.document.showMessage(results) // Need to remove this line during final commit
+      }
+    }
+  )
   // NOTE: For now we are saving the JSON in temporary path
   // in future this would be feed to function call.
   const jsonPath = path.join('/tmp/thesi', `${fileHash}.json`)
   fs.writeFileSync(jsonPath, JSON.stringify(layerMetaObj))
-
-  // Note: Propogate the filehash to next function for picking up proper
-  // files from the directory
-
-  context.document.showMessage('Extracted layer metadata successfully 😎')
 }

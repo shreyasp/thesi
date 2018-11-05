@@ -3647,6 +3647,13 @@ sketch-polyfill-fetch@^0.3.0:
   dependencies:
     cocoascript-class "^0.1.2"
 
+sketch-polyfill-fetch@^0.3.7:
+  version "0.3.7"
+  resolved "https://registry.yarnpkg.com/sketch-polyfill-fetch/-/sketch-polyfill-fetch-0.3.7.tgz#3433ff740cccb5efb60447244213e108ab266cb7"
+  integrity sha512-zj8oTOIKO0kCajcm2SLjbbcTWmGkua3VluayErLBc8LFny6HzpZhAT2vr7T4/zl7E33KOgu92r4+v2dZRsu+Fg==
+  dependencies:
+    cocoascript-class "^0.1.2"
+
 sketch-utils@^0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/sketch-utils/-/sketch-utils-0.1.2.tgz#7c4d39ba19abe581e727d08c2cb70465bb74a81c"
