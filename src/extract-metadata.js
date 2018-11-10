@@ -1,4 +1,4 @@
-/* globals NSPredicate */
+/* globals NSPredicate NSData */
 /* eslint no-bitwise: [2, {allow: ["|", "&"]}] */
 import fs from '@skpm/fs'
 import path from '@skpm/path'
@@ -7,8 +7,18 @@ import async from 'async'
 import _ from 'lodash'
 import sketch from 'sketch'
 import fetch from 'sketch-polyfill-fetch'
+import FormData from 'sketch-polyfill-fetch/lib/form-data'
 import sketchDOM from 'sketch/dom'
 import UI from 'sketch/ui'
+
+function checkStatus(response) {
+  if (response.ok) {
+    return response
+  }
+  const error = new Error(response.statusText)
+  error.response = response
+  return Promise.reject(error)
+}
 
 function generateUUID() {
   let d = new Date().getTime()
@@ -154,18 +164,21 @@ function extractMetaData(layer, parentName, parentFrame, fileHash) {
 // Entry Point for the Plugin
 export default function(context) {
   // Get wrapped native Document object from Context
+  // const sketchFiber = sketchAsync.createFiber()
   const doc = sketch.fromNative(context.document)
   const page = doc && doc.selectedPage
   const fileHash = generateUUID()
-  const baseURL = 'https://status-node-api.shreyasp.com/'
+  const baseURL = 'http://localhost:3000'
   const layerMetaObj = {}
 
+  // sketchFiber.cleanup();
   async.auto(
     {
       getCategories: getCategoryCB => {
         fetch(`${baseURL}/category/`)
+          .then(checkStatus)
           .then(response => response.json())
-          .then(data => getCategoryCB(null, data))
+          .then(jsonResponse => getCategoryCB(null, jsonResponse.data))
           .catch(err => getCategoryCB(err))
       },
       getSelectedCategory: [
@@ -202,8 +215,8 @@ export default function(context) {
         'getSelectedCategory',
         (results, getImageNameCB) => {
           const imageName = UI.getStringFromUser(
-            'Please enter unique name for the template: ',
-            'Template Image Name'
+            'Please enter unique name for the template',
+            'Template_Image_Name (Do not use spaces)'
           )
           getImageNameCB(null, {
             imageName,
@@ -252,28 +265,148 @@ export default function(context) {
           fonts,
         })
       },
-      getTemplateFonts: [
-        'extractTemplateData',
-        (results, getTemplFontsCB) => {
-          getTemplFontsCB(null, results.extractTemplateData.layerMetaObj)
+      createImage: [
+        'getSelectedCategory',
+        'getImageName',
+        (results, createImageCB) => {
+          const fetchOptions = {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              imageName: results.getImageName.imageName,
+              categoryId: results.getSelectedCategory[0].id,
+            }),
+          }
+
+          fetch(`${baseURL}/image/`, fetchOptions)
+            .then(checkStatus)
+            .then(response => response.json())
+            .then(data => createImageCB(null, data))
+            .catch(err => createImageCB(err))
+        },
+      ],
+      uploadTemplate: [
+        'createImage',
+        (results, uploadTemplateCB) => {
+          try {
+            const templatePath = path.join(
+              '/tmp',
+              'thesi',
+              fileHash,
+              'images',
+              'template'
+            )
+            const templates = fs.readdirSync(templatePath)
+            const imageId = results.createImage.id
+            const filePath = path.join(templatePath, templates[0])
+            const binaryData = NSData.alloc().initWithContentsOfFile(filePath)
+
+            const formData = new FormData()
+            formData.append('template', {
+              fileName: templates[0],
+              mimeType: 'image/png',
+              data: binaryData,
+            })
+
+            const fetchOptions = {
+              method: 'PUT',
+              body: formData,
+            }
+
+            fetch(
+              `${baseURL}/image/${imageId}/template/${fileHash}`,
+              fetchOptions
+            )
+              .then(checkStatus)
+              .then(response => response.json())
+              .then(data => uploadTemplateCB(null, data))
+              .catch(err => uploadTemplateCB(err))
+          } catch (err) {
+            uploadTemplateCB(err)
+          }
+        },
+      ],
+      uploadTemplateBackground: [
+        'createImage',
+        (results, uploadTemplBackgroundCB) => {
+          try {
+            const templateBckgndPath = path.join(
+              '/tmp',
+              'thesi',
+              fileHash,
+              'images',
+              'background'
+            )
+            const templBackground = fs.readdirSync(templateBckgndPath)
+            const imageId = results.createImage.id
+            const filePath = path.join(templateBckgndPath, templBackground[0])
+            const binaryData = NSData.alloc().initWithContentsOfFile(filePath)
+
+            const formData = new FormData()
+            formData.append('background', {
+              fileName: templBackground[0],
+              mimeType: 'image/png',
+              data: binaryData,
+            })
+
+            const fetchOptions = {
+              method: 'PUT',
+              body: formData,
+            }
+
+            fetch(
+              `${baseURL}/image/${imageId}/background/${fileHash}`,
+              fetchOptions
+            )
+              .then(checkStatus)
+              .then(response => response.json())
+              .then(data => uploadTemplBackgroundCB(null, data))
+              .catch(err => uploadTemplBackgroundCB(err))
+          } catch (err) {
+            uploadTemplBackgroundCB(err)
+          }
+        },
+      ],
+      uploadLayerMeta: [
+        'createImage',
+        (results, uploadLayerMetaCB) => {
+          uploadLayerMetaCB(null, {
+            success: true,
+          })
+        },
+      ],
+      uploadLayerFonts: [
+        'uploadLayerMeta',
+        (results, uploadLayerFontsCB) => {
+          uploadLayerFontsCB(null, {
+            success: true,
+          })
         },
       ],
     },
     Infinity,
     (err, results) => {
       if (err) {
-        if (err.break)
+        if (err.break) {
           context.document.showMessage('Template Extraction was aborted')
+        } else {
+          context.document.showMessage(err)
+        }
       } else {
         // Note: Propogate the filehash to next function for picking up proper
         // files from the directory
-        context.document.showMessage('Extracted layer metadata successfully 😎')
+        // context.document.showMessage('Extracted layer metadata successfully 😎')
+        // context.document.showMessage(results)
         context.document.showMessage(results)
       }
     }
   )
+  context.document.showMessage('Extracted layer metadata successfully 😎')
+  // sketchFiber.cleanup();
   // NOTE: For now we are saving the JSON in temporary path
   // in future this would be feed to function call.
-  const jsonPath = path.join('/tmp/thesi', `${fileHash}.json`)
-  fs.writeFileSync(jsonPath, JSON.stringify(layerMetaObj))
+  // const jsonPath = path.join('/tmp/thesi', `${fileHash}.json`)
+  // fs.writeFileSync(jsonPath, JSON.stringify(layerMetaObj))
 }
