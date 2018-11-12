@@ -223,48 +223,91 @@ export default function(context) {
           })
         },
       ],
-      extractTemplateData: extractTemplDataCB => {
-        // Hierarchy for extraction
-        // Doc -> Page -> Layer/Artboard -> Layer-Group -> Layer -> Metadata
-        _.forEach(page.layers, board => {
-          _.forEach(board.layers, layerGroup => {
-            const parentName = layerGroup.name
+      extractTemplateData: [
+        'getImageName',
+        (results, extractTemplDataCB) => {
+          // Hierarchy for extraction
+          // Doc -> Page -> Layer/Artboard -> Layer-Group -> Layer -> Metadata
+          _.forEach(page.layers, board => {
+            _.forEach(board.layers, layerGroup => {
+              const parentName = layerGroup.name
 
-            // Actual co-ordinates based on page origin
-            const parentFrame = _.pick(layerGroup.frame.toJSON(), ['x', 'y'])
+              // Actual co-ordinates based on page origin
+              const parentFrame = _.pick(layerGroup.frame.toJSON(), ['x', 'y'])
 
-            async.each(
-              layerGroup.layers,
-              layer => {
-                _.assign(
-                  layerMetaObj,
-                  extractMetaData(layer, parentName, parentFrame, fileHash)
-                )
-              },
-              err => {
-                if (err) {
-                  extractTemplDataCB(err)
+              async.each(
+                layerGroup.layers,
+                layer => {
+                  _.assign(
+                    layerMetaObj,
+                    extractMetaData(layer, parentName, parentFrame, fileHash)
+                  )
+                },
+                err => {
+                  if (err) {
+                    extractTemplDataCB(err)
+                  }
                 }
-              }
-            )
+              )
+            })
           })
-        })
 
-        // NOTE: Collect unique fonts required by the template
-        const fonts = _.uniq(
-          _.map(
-            _.filter(layerMetaObj, o => o.type === 'text'),
-            l => l.font.fontName
+          // NOTE: Collect unique fonts required by the template
+          const fonts = _.uniq(
+            _.map(
+              _.filter(layerMetaObj, o => o.type === 'text'),
+              l => l.font.fontName
+            )
           )
-        )
 
-        // Save the template as PNG
-        exportPNG(page, 'template', fileHash)
-        extractTemplDataCB(null, {
-          layerMetaObj,
-          fonts,
-        })
-      },
+          // Save the template as PNG
+          exportPNG(page, 'template', fileHash)
+          extractTemplDataCB(null, {
+            layerMetaObj,
+            fonts,
+          })
+        },
+      ],
+      getFontPath: [
+        'extractTemplateData',
+        (results, getFontPathCB) => {
+          const fontPath = UI.getStringFromUser(
+            'Please specify the path to fonts folder',
+            '/path/to/fonts/folder'
+          )
+          try {
+            fs.accessSync(fontPath)
+          } catch (err) {
+            UI.alert(
+              'Font Path Error',
+              "Specified font path doesn't exist. Please restart and input correct font path"
+            )
+            getFontPathCB(err)
+          }
+
+          const fontToUpload = []
+          const expectedFonts = results.extractTemplateData.fonts
+          const fontFiles = fs.readdirSync(fontPath)
+
+          _.forEach(fontFiles, file => {
+            const fontName = path.parse(file).name
+            if (_.indexOf(results.extractTemplateData.fonts, fontName) !== -1) {
+              fontToUpload.push(path.join(fontPath, file))
+              _.pull(expectedFonts, fontName)
+            }
+          })
+
+          if (!_.isEmpty(fontToUpload) && _.isEmpty(expectedFonts)) {
+            getFontPathCB(null, { paths: fontToUpload })
+          } else {
+            UI.alert(
+              'Font missing',
+              `Specified fonts are missing: [${expectedFonts}]`
+            )
+            getFontPathCB({ break: true })
+          }
+        },
+      ],
       createImage: [
         'getSelectedCategory',
         'getImageName',
@@ -299,7 +342,6 @@ export default function(context) {
               'template'
             )
             const templates = fs.readdirSync(templatePath)
-            const imageId = results.createImage.id
             const filePath = path.join(templatePath, templates[0])
             const binaryData = NSData.alloc().initWithContentsOfFile(filePath)
 
@@ -316,7 +358,7 @@ export default function(context) {
             }
 
             fetch(
-              `${baseURL}/image/${imageId}/template/${fileHash}`,
+              `${baseURL}/image/${results.createImage.id}/template/${fileHash}`,
               fetchOptions
             )
               .then(checkStatus)
@@ -340,7 +382,6 @@ export default function(context) {
               'background'
             )
             const templBackground = fs.readdirSync(templateBckgndPath)
-            const imageId = results.createImage.id
             const filePath = path.join(templateBckgndPath, templBackground[0])
             const binaryData = NSData.alloc().initWithContentsOfFile(filePath)
 
@@ -357,7 +398,9 @@ export default function(context) {
             }
 
             fetch(
-              `${baseURL}/image/${imageId}/background/${fileHash}`,
+              `${baseURL}/image/${
+                results.createImage.id
+              }/background/${fileHash}`,
               fetchOptions
             )
               .then(checkStatus)
@@ -372,17 +415,63 @@ export default function(context) {
       uploadLayerMeta: [
         'createImage',
         (results, uploadLayerMetaCB) => {
-          uploadLayerMetaCB(null, {
-            success: true,
-          })
+          const fetchOptions = {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(results.extractTemplateData.layerMetaObj),
+          }
+
+          fetch(`${baseURL}/layer/${results.createImage.id}`, fetchOptions)
+            .then(checkStatus)
+            .then(response => response.json())
+            .then(data => uploadLayerMetaCB(null, data))
+            .catch(err => uploadLayerMetaCB(err))
         },
       ],
       uploadLayerFonts: [
         'uploadLayerMeta',
         (results, uploadLayerFontsCB) => {
-          uploadLayerFontsCB(null, {
-            success: true,
+          const formData = new FormData()
+          _.forEach(results.getFontPath.paths, fontPath => {
+            const mimeType =
+              path.parse(fontPath).ext === 'ttf' ||
+              path.parse(fontPath).ext === 'ttc'
+                ? 'application/x-font-truetype'
+                : 'application/x-font-opentype'
+            formData.append('font', {
+              data: NSData.alloc().initWithContentsOfFile(fontPath),
+              mimeType,
+              fileName: path.parse(fontPath).base,
+            })
           })
+
+          const fetchOptions = {
+            method: 'POST',
+            body: formData,
+          }
+
+          fetch(`${baseURL}/font/`, fetchOptions)
+            .then(checkStatus)
+            .then(response => response.json())
+            .then(data => uploadLayerFontsCB(null, data))
+            .catch(err => uploadLayerFontsCB(err))
+        },
+      ],
+      cleanUpTemplateData: [
+        'uploadTemplate',
+        'uploadTemplateBackground',
+        (results, cleanUpCB) => {
+          try {
+            fs.rmdirSync(path.join('/tmp', 'thesi', `${fileHash}`))
+            cleanUpCB(null, {
+              sucess: true,
+              message: 'Cleaned up template images',
+            })
+          } catch (err) {
+            cleanUpCB(err)
+          }
         },
       ],
     },
@@ -390,23 +479,16 @@ export default function(context) {
     (err, results) => {
       if (err) {
         if (err.break) {
-          context.document.showMessage('Template Extraction was aborted')
+          context.document.showMessage('Template Extraction was aborted 🚫')
         } else {
-          context.document.showMessage(err)
+          context.document.showMessage(
+            'Something went wrong while extracting 🤯'
+          )
         }
       } else {
-        // Note: Propogate the filehash to next function for picking up proper
-        // files from the directory
-        // context.document.showMessage('Extracted layer metadata successfully 😎')
-        // context.document.showMessage(results)
-        context.document.showMessage(results)
+        fs.writeFileSync('/tmp/uploadLogs.txt', JSON.stringify(results))
+        context.document.showMessage('Extracted layer metadata successfully 😎')
       }
     }
   )
-  context.document.showMessage('Extracted layer metadata successfully 😎')
-  // sketchFiber.cleanup();
-  // NOTE: For now we are saving the JSON in temporary path
-  // in future this would be feed to function call.
-  // const jsonPath = path.join('/tmp/thesi', `${fileHash}.json`)
-  // fs.writeFileSync(jsonPath, JSON.stringify(layerMetaObj))
 }

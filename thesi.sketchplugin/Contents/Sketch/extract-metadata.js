@@ -436,11 +436,8 @@ function __skpm_run(key, context) {
       /* 3 */
       /***/ function(module, exports, __webpack_require__) {
         'use strict'
-        /* WEBPACK VAR INJECTION */ ;(function(
-          setTimeout,
-          setImmediate,
-          console
-        ) {
+        /* WEBPACK VAR INJECTION */
+        ;(function(setTimeout, setImmediate, console) {
           // Store setTimeout reference so promise-polyfill will be unaffected by
           // other code modifying setTimeout (like sinon.useFakeTimers())
           var setTimeoutFunc = setTimeout
@@ -708,7 +705,8 @@ function __skpm_run(key, context) {
       /* 4 */
       /***/ function(module, exports, __webpack_require__) {
         'use strict'
-        /* WEBPACK VAR INJECTION */ ;(function(global) {
+        /* WEBPACK VAR INJECTION */
+        ;(function(global) {
           /*!
  * The buffer module from node.js, for the browser.
  *
@@ -3137,7 +3135,8 @@ function __skpm_run(key, context) {
       /* 10 */
       /***/ function(module, exports, __webpack_require__) {
         'use strict'
-        /* WEBPACK VAR INJECTION */ ;(function(Promise) {
+        /* WEBPACK VAR INJECTION */
+        ;(function(Promise) {
           Object.defineProperty(exports, '__esModule', {
             value: true,
           })
@@ -3222,8 +3221,9 @@ function __skpm_run(key, context) {
                     })
                   },
                 ],
-                extractTemplateData: (function() {
-                  function extractTemplateData(extractTemplDataCB) {
+                extractTemplateData: [
+                  'getImageName',
+                  function(results, extractTemplDataCB) {
                     // Hierarchy for extraction
                     // Doc -> Page -> Layer/Artboard -> Layer-Group -> Layer -> Metadata
                     _lodash2['default'].forEach(page.layers, function(board) {
@@ -3278,10 +3278,60 @@ function __skpm_run(key, context) {
                       layerMetaObj: layerMetaObj,
                       fonts: fonts,
                     })
-                  }
+                  },
+                ],
+                getFontPath: [
+                  'extractTemplateData',
+                  function(results, getFontPathCB) {
+                    var fontPath = _ui2['default'].getStringFromUser(
+                      'Please specify the path to fonts folder',
+                      '/path/to/fonts/folder'
+                    )
+                    try {
+                      _fs2['default'].accessSync(fontPath)
+                    } catch (err) {
+                      _ui2['default'].alert(
+                        'Font Path Error',
+                        "Specified font path doesn't exist. Please restart and input correct font path"
+                      )
+                      getFontPathCB(err)
+                    }
 
-                  return extractTemplateData
-                })(),
+                    var fontToUpload = []
+                    var expectedFonts = results.extractTemplateData.fonts
+                    var fontFiles = _fs2['default'].readdirSync(fontPath)
+
+                    _lodash2['default'].forEach(fontFiles, function(file) {
+                      var fontName = _path2['default'].parse(file).name
+                      if (
+                        _lodash2['default'].indexOf(
+                          results.extractTemplateData.fonts,
+                          fontName
+                        ) !== -1
+                      ) {
+                        fontToUpload.push(
+                          _path2['default'].join(fontPath, file)
+                        )
+                        _lodash2['default'].pull(expectedFonts, fontName)
+                      }
+                    })
+
+                    if (
+                      !_lodash2['default'].isEmpty(fontToUpload) &&
+                      _lodash2['default'].isEmpty(expectedFonts)
+                    ) {
+                      getFontPathCB(null, { paths: fontToUpload })
+                    } else {
+                      _ui2['default'].alert(
+                        'Font missing',
+                        'Specified fonts are missing: [' +
+                          String(expectedFonts) +
+                          ']'
+                      )
+                      getFontPathCB({ break: true })
+                    }
+                  },
+                ],
                 createImage: [
                   'getSelectedCategory',
                   'getImageName',
@@ -3296,7 +3346,6 @@ function __skpm_run(key, context) {
                         categoryId: results.getSelectedCategory[0].id,
                       }),
                     }
-
                     ;(0, _sketchPolyfillFetch2['default'])(
                       baseURL + '/image/',
                       fetchOptions
@@ -3325,7 +3374,6 @@ function __skpm_run(key, context) {
                         'template'
                       )
                       var templates = _fs2['default'].readdirSync(templatePath)
-                      var imageId = results.createImage.id
                       var filePath = _path2['default'].join(
                         templatePath,
                         templates[0]
@@ -3345,11 +3393,10 @@ function __skpm_run(key, context) {
                         method: 'PUT',
                         body: formData,
                       }
-
                       ;(0, _sketchPolyfillFetch2['default'])(
                         baseURL +
                           '/image/' +
-                          String(imageId) +
+                          String(results.createImage.id) +
                           '/template/' +
                           String(fileHash),
                         fetchOptions
@@ -3383,7 +3430,6 @@ function __skpm_run(key, context) {
                       var templBackground = _fs2['default'].readdirSync(
                         templateBckgndPath
                       )
-                      var imageId = results.createImage.id
                       var filePath = _path2['default'].join(
                         templateBckgndPath,
                         templBackground[0]
@@ -3403,11 +3449,10 @@ function __skpm_run(key, context) {
                         method: 'PUT',
                         body: formData,
                       }
-
                       ;(0, _sketchPolyfillFetch2['default'])(
                         baseURL +
                           '/image/' +
-                          String(imageId) +
+                          String(results.createImage.id) +
                           '/background/' +
                           String(fileHash),
                         fetchOptions
@@ -3430,17 +3475,90 @@ function __skpm_run(key, context) {
                 uploadLayerMeta: [
                   'createImage',
                   function(results, uploadLayerMetaCB) {
-                    uploadLayerMetaCB(null, {
-                      success: true,
-                    })
+                    var fetchOptions = {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify(
+                        results.extractTemplateData.layerMetaObj
+                      ),
+                    }
+                    ;(0, _sketchPolyfillFetch2['default'])(
+                      baseURL + '/layer/' + String(results.createImage.id),
+                      fetchOptions
+                    )
+                      .then(checkStatus)
+                      .then(function(response) {
+                        return response.json()
+                      })
+                      .then(function(data) {
+                        return uploadLayerMetaCB(null, data)
+                      })
+                      ['catch'](function(err) {
+                        return uploadLayerMetaCB(err)
+                      })
                   },
                 ],
                 uploadLayerFonts: [
                   'uploadLayerMeta',
                   function(results, uploadLayerFontsCB) {
-                    uploadLayerFontsCB(null, {
-                      success: true,
-                    })
+                    var formData = new _formData2['default']()
+                    _lodash2['default'].forEach(
+                      results.getFontPath.paths,
+                      function(fontPath) {
+                        var mimeType =
+                          _path2['default'].parse(fontPath).ext === 'ttf' ||
+                          _path2['default'].parse(fontPath).ext === 'ttc'
+                            ? 'application/x-font-truetype'
+                            : 'application/x-font-opentype'
+                        formData.append('font', {
+                          data: NSData.alloc().initWithContentsOfFile(fontPath),
+                          mimeType: mimeType,
+                          fileName: _path2['default'].parse(fontPath).base,
+                        })
+                      }
+                    )
+
+                    var fetchOptions = {
+                      method: 'POST',
+                      body: formData,
+                    }
+                    ;(0, _sketchPolyfillFetch2['default'])(
+                      baseURL + '/font/',
+                      fetchOptions
+                    )
+                      .then(checkStatus)
+                      .then(function(response) {
+                        return response.json()
+                      })
+                      .then(function(data) {
+                        return uploadLayerFontsCB(null, data)
+                      })
+                      ['catch'](function(err) {
+                        return uploadLayerFontsCB(err)
+                      })
+                  },
+                ],
+                cleanUpTemplateData: [
+                  'uploadTemplate',
+                  'uploadTemplateBackground',
+                  function(results, cleanUpCB) {
+                    try {
+                      _fs2['default'].rmdirSync(
+                        _path2['default'].join(
+                          '/tmp',
+                          'thesi',
+                          '' + String(fileHash)
+                        )
+                      )
+                      cleanUpCB(null, {
+                        sucess: true,
+                        message: 'Cleaned up template images',
+                      })
+                    } catch (err) {
+                      cleanUpCB(err)
+                    }
                   },
                 ],
               },
@@ -3449,28 +3567,20 @@ function __skpm_run(key, context) {
                 if (err) {
                   if (err['break']) {
                     context.document.showMessage(
-                      'Template Extraction was aborted'
+                      'Template Extraction was aborted 🚫'
                     )
                   } else {
-                    log(err)
+                    context.document.showMessage(
+                      'Something went wrong while extracting 🤯'
+                    )
                   }
                 } else {
-                  // Note: Propogate the filehash to next function for picking up proper
-                  // files from the directory
-                  // context.document.showMessage('Extracted layer metadata successfully 😎')
-                  // context.document.showMessage(results)
-                  log(results)
+                  context.document.showMessage(
+                    'Extracted layer metadata successfully 😎'
+                  )
                 }
               }
             )
-            context.document.showMessage(
-              'Extracted layer metadata successfully 😎'
-            )
-            // sketchFiber.cleanup();
-            // NOTE: For now we are saving the JSON in temporary path
-            // in future this would be feed to function call.
-            // const jsonPath = path.join('/tmp/thesi', `${fileHash}.json`)
-            // fs.writeFileSync(jsonPath, JSON.stringify(layerMetaObj))
           }
 
           var _fs = __webpack_require__(17)
