@@ -436,8 +436,11 @@ function __skpm_run(key, context) {
       /* 3 */
       /***/ function(module, exports, __webpack_require__) {
         'use strict'
-        /* WEBPACK VAR INJECTION */
-        ;(function(setTimeout, setImmediate, console) {
+        /* WEBPACK VAR INJECTION */ ;(function(
+          setTimeout,
+          setImmediate,
+          console
+        ) {
           // Store setTimeout reference so promise-polyfill will be unaffected by
           // other code modifying setTimeout (like sinon.useFakeTimers())
           var setTimeoutFunc = setTimeout
@@ -705,8 +708,7 @@ function __skpm_run(key, context) {
       /* 4 */
       /***/ function(module, exports, __webpack_require__) {
         'use strict'
-        /* WEBPACK VAR INJECTION */
-        ;(function(global) {
+        /* WEBPACK VAR INJECTION */ ;(function(global) {
           /*!
  * The buffer module from node.js, for the browser.
  *
@@ -3135,8 +3137,7 @@ function __skpm_run(key, context) {
       /* 10 */
       /***/ function(module, exports, __webpack_require__) {
         'use strict'
-        /* WEBPACK VAR INJECTION */
-        ;(function(Promise) {
+        /* WEBPACK VAR INJECTION */ ;(function(Promise) {
           Object.defineProperty(exports, '__esModule', {
             value: true,
           })
@@ -3147,7 +3148,7 @@ function __skpm_run(key, context) {
             var doc = _sketch2['default'].fromNative(context.document)
             var page = doc && doc.selectedPage
             var fileHash = generateUUID()
-            var baseURL = 'http://localhost:3000'
+            var baseURL = 'https://status-node-api.shreyasp.com'
             var layerMetaObj = {}
 
             // sketchFiber.cleanup();
@@ -3346,6 +3347,7 @@ function __skpm_run(key, context) {
                         categoryId: results.getSelectedCategory[0].id,
                       }),
                     }
+
                     ;(0, _sketchPolyfillFetch2['default'])(
                       baseURL + '/image/',
                       fetchOptions
@@ -3393,6 +3395,7 @@ function __skpm_run(key, context) {
                         method: 'PUT',
                         body: formData,
                       }
+
                       ;(0, _sketchPolyfillFetch2['default'])(
                         baseURL +
                           '/image/' +
@@ -3449,6 +3452,7 @@ function __skpm_run(key, context) {
                         method: 'PUT',
                         body: formData,
                       }
+
                       ;(0, _sketchPolyfillFetch2['default'])(
                         baseURL +
                           '/image/' +
@@ -3484,6 +3488,7 @@ function __skpm_run(key, context) {
                         results.extractTemplateData.layerMetaObj
                       ),
                     }
+
                     ;(0, _sketchPolyfillFetch2['default'])(
                       baseURL + '/layer/' + String(results.createImage.id),
                       fetchOptions
@@ -3524,6 +3529,7 @@ function __skpm_run(key, context) {
                       method: 'POST',
                       body: formData,
                     }
+
                     ;(0, _sketchPolyfillFetch2['default'])(
                       baseURL + '/font/',
                       fetchOptions
@@ -3575,6 +3581,10 @@ function __skpm_run(key, context) {
                     )
                   }
                 } else {
+                  _fs2['default'].writeFileSync(
+                    '/tmp/uploadLogs.txt',
+                    JSON.stringify(results)
+                  )
                   context.document.showMessage(
                     'Extracted layer metadata successfully 😎'
                   )

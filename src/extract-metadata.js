@@ -168,7 +168,7 @@ export default function(context) {
   const doc = sketch.fromNative(context.document)
   const page = doc && doc.selectedPage
   const fileHash = generateUUID()
-  const baseURL = 'http://localhost:3000'
+  const baseURL = 'https://status-node-api.shreyasp.com'
   const layerMetaObj = {}
 
   // sketchFiber.cleanup();
