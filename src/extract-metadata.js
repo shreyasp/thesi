@@ -164,14 +164,12 @@ function extractMetaData(layer, parentName, parentFrame, fileHash) {
 // Entry Point for the Plugin
 export default function(context) {
   // Get wrapped native Document object from Context
-  // const sketchFiber = sketchAsync.createFiber()
   const doc = sketch.fromNative(context.document)
   const page = doc && doc.selectedPage
   const fileHash = generateUUID()
   const baseURL = 'https://status-node-api.shreyasp.com'
   const layerMetaObj = {}
 
-  // sketchFiber.cleanup();
   async.auto(
     {
       getCategories: getCategoryCB => {
