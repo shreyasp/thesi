@@ -31,14 +31,13 @@ function generateUUID() {
 
 function exportPNG(image, suffix, fileHash, options) {
   const defaultOptions = {
-    formats: 'png',
+    formats: 'jpg',
     scale: '1',
-    'save-for-web': true,
+    compression: 0.9,
+    progressive: true,
     output: `/tmp/thesi/${fileHash}/images/${suffix}`,
     'use-id-for-name': true,
   }
-
-  defaultOptions['save-for-web'] = !!options && options.formats === 'png'
   sketchDOM.export(image, _.merge(defaultOptions, options))
 }
 
@@ -167,7 +166,7 @@ export default function(context) {
   const doc = sketch.fromNative(context.document)
   const page = doc && doc.selectedPage
   const fileHash = generateUUID()
-  const baseURL = 'https://status-node-api.shreyasp.com'
+  const baseURL = 'http://localhost:3000'
   const layerMetaObj = {}
 
   async.auto(
@@ -176,7 +175,9 @@ export default function(context) {
         fetch(`${baseURL}/category/`)
           .then(checkStatus)
           .then(response => response.json())
-          .then(jsonResponse => getCategoryCB(null, jsonResponse.data))
+          .then(jsonResponse =>
+            getCategoryCB(null, jsonResponse.data.categories)
+          )
           .catch(err => getCategoryCB(err))
       },
       getSelectedCategory: [
@@ -346,7 +347,7 @@ export default function(context) {
             const formData = new FormData()
             formData.append('template', {
               fileName: templates[0],
-              mimeType: 'image/png',
+              mimeType: 'image/jpeg',
               data: binaryData,
             })
 
@@ -386,7 +387,7 @@ export default function(context) {
             const formData = new FormData()
             formData.append('background', {
               fileName: templBackground[0],
-              mimeType: 'image/png',
+              mimeType: 'image/jpeg',
               data: binaryData,
             })
 
@@ -475,16 +476,25 @@ export default function(context) {
     },
     Infinity,
     (err, results) => {
+      // TODO: Still to write logs for success and failure.
+      JSON.stringify(results)
       if (err) {
         if (err.break) {
           context.document.showMessage('Template Extraction was aborted 🚫')
         } else {
+          UI.alert(
+            'Failure',
+            'Something went wrong while trying to extracting or uploading'
+          )
           context.document.showMessage(
             'Something went wrong while extracting 🤯'
           )
         }
       } else {
-        fs.writeFileSync('/tmp/uploadLogs.txt', JSON.stringify(results))
+        UI.alert(
+          'Success',
+          'Template was extracted and uploaded successfully to the server'
+        )
         context.document.showMessage('Extracted layer metadata successfully 😎')
       }
     }
