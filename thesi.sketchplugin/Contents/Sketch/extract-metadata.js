@@ -3147,7 +3147,7 @@ function __skpm_run(key, context) {
             var doc = _sketch2['default'].fromNative(context.document)
             var page = doc && doc.selectedPage
             var fileHash = generateUUID()
-            var baseURL = 'http://localhost:3000'
+            var baseURL = 'https://status-node-api.shreyasp.com'
             var layerMetaObj = {}
 
             _async2['default'].auto(
