@@ -8,7 +8,6 @@ import _ from 'lodash'
 import sketch from 'sketch'
 import fetch from 'sketch-polyfill-fetch'
 import FormData from 'sketch-polyfill-fetch/lib/form-data'
-import sketchDOM from 'sketch/dom'
 import UI from 'sketch/ui'
 
 function checkStatus(response) {
@@ -29,7 +28,7 @@ function generateUUID() {
   })
 }
 
-function exportPNG(image, suffix, fileHash, options) {
+function exportImage(image, suffix, fileHash, options) {
   const defaultOptions = {
     formats: 'jpg',
     scale: '1',
@@ -38,7 +37,8 @@ function exportPNG(image, suffix, fileHash, options) {
     output: `/tmp/thesi/${fileHash}/images/${suffix}`,
     'use-id-for-name': true,
   }
-  sketchDOM.export(image, _.merge(defaultOptions, options))
+
+  sketch.export(image, _.merge(defaultOptions, options))
 }
 
 // This function is kind of niche extraction function written specifically
@@ -78,7 +78,7 @@ function extractImageMetaData(layer, parent, fileHash) {
   imageMetaObject.style = _.pick(layer.style, imageStyleKeys)
   imageMetaObject.layerParent = parent
   imageMetaObject.type = 'image'
-  exportPNG(layer, 'background', fileHash)
+  exportImage(layer, 'background', fileHash)
 
   return {
     [_.snakeCase(layer.name)]: imageMetaObject,
@@ -101,7 +101,7 @@ function extractTextMetadata(layer, parentName, parentFrame) {
   frame.height = layerFrame.height
 
   const textLayerMeta = {
-    alignment: layer.alignment,
+    alignment: layer.style.alignment,
     style: _.pick(layer.style, textStyleKeys),
     text: layer.text,
     font: extractLayerFontData(layer),
@@ -110,7 +110,9 @@ function extractTextMetadata(layer, parentName, parentFrame) {
     frame,
   }
 
-  textLayerMeta.style.color = _.get(layer, 'style.fills[0].color')
+  textLayerMeta.style.color = _.isEmpty(layer.style.fills)
+    ? _.get(layer, 'style.textColor')
+    : _.get(layer, 'style.fills[0].color')
   return {
     [_.snakeCase(layer.name)]: textLayerMeta,
   }
@@ -150,7 +152,6 @@ function extractMetaData(layer, parentName, parentFrame, fileHash) {
   // Removing any dashes, underscores or spaces from the layer name
   // and converting it to camelCased key for preventing any issues
   // while saving to database :)
-
   if (layer.type === 'Image') {
     _.assign(data, extractImageMetaData(layer, parentName, fileHash))
   } else if (layer.type === 'Text') {
@@ -163,7 +164,7 @@ function extractMetaData(layer, parentName, parentFrame, fileHash) {
 // Entry Point for the Plugin
 export default function(context) {
   // Get wrapped native Document object from Context
-  const doc = sketch.fromNative(context.document)
+  const doc = sketch.getSelectedDocument()
   const page = doc && doc.selectedPage
   const fileHash = generateUUID()
   const baseURL = 'https://status-node-api.shreyasp.com'
@@ -178,48 +179,56 @@ export default function(context) {
           .then(jsonResponse =>
             getCategoryCB(null, jsonResponse.data.categories)
           )
-          .catch(err => getCategoryCB(err))
+          .catch(err => {
+            getCategoryCB(err)
+          })
       },
       getSelectedCategory: [
         'getCategories',
         (results, getSelCategoryCB) => {
           const categories = _.map(results.getCategories, o => o.displayName)
-          const selection = UI.getSelectionFromUser(
+          UI.getInputFromUser(
             'Please select a category for the template',
-            categories
-          )
+            {
+              type: UI.INPUT_TYPE.selection,
+              possibleValues: categories,
+            },
+            (err, selection) => {
+              if (err) {
+                return
+              } else if (!selection) {
+                getSelCategoryCB({
+                  break: true,
+                  error: false,
+                })
+              }
 
-          // NOTE: Selection is an array of size 3
-          // selection[0] === Response Code NSAlertFirstButtonReturn or NSAlertSecondButtonReturn
-          // selection[1] === index of selected option
-          // selection[2] === whether user clicked on Ok or Cancel button on the dialog
-          if (!selection[2]) {
-            getSelCategoryCB({
-              break: true,
-              error: false,
-            })
-          }
-
-          const selectedCategory = categories[selection[1]]
-          getSelCategoryCB(
-            null,
-            _.filter(
-              results.getCategories,
-              o => o.displayName === selectedCategory
-            )
+              getSelCategoryCB(
+                null,
+                _.filter(
+                  results.getCategories,
+                  o => o.displayName === selection
+                )
+              )
+            }
           )
         },
       ],
       getImageName: [
         'getSelectedCategory',
         (results, getImageNameCB) => {
-          const imageName = UI.getStringFromUser(
+          UI.getInputFromUser(
             'Please enter unique name for the template',
-            'Template_Image_Name (Do not use spaces)'
+            {
+              type: UI.INPUT_TYPE.string,
+              initialValue: 'Template_Image_Name (Do not use spaces)',
+            },
+            (err, imageName) => {
+              getImageNameCB(null, {
+                imageName,
+              })
+            }
           )
-          getImageNameCB(null, {
-            imageName,
-          })
         },
       ],
       extractTemplateData: [
@@ -260,7 +269,7 @@ export default function(context) {
           )
 
           // Save the template as PNG
-          exportPNG(page, 'template', fileHash)
+          exportImage(page.layers, 'template', fileHash)
           extractTemplDataCB(null, {
             layerMetaObj,
             fonts,
@@ -270,41 +279,48 @@ export default function(context) {
       getFontPath: [
         'extractTemplateData',
         (results, getFontPathCB) => {
-          const fontPath = UI.getStringFromUser(
+          UI.getInputFromUser(
             'Please specify the path to fonts folder',
-            '/path/to/fonts/folder'
-          )
-          try {
-            fs.accessSync(fontPath)
-          } catch (err) {
-            UI.alert(
-              'Font Path Error',
-              "Specified font path doesn't exist. Please restart and input correct font path"
-            )
-            getFontPathCB(err)
-          }
+            {
+              type: UI.INPUT_TYPE.string,
+              initialValue: '/path/to/fonts/folder',
+            },
+            (err, fontPath) => {
+              try {
+                fs.accessSync(fontPath)
+              } catch (inErr) {
+                UI.alert(
+                  'Font Path Error',
+                  "Specified font path doesn't exist. Please restart and input correct font path"
+                )
+                getFontPathCB(inErr)
+              }
 
-          const fontToUpload = []
-          const expectedFonts = results.extractTemplateData.fonts
-          const fontFiles = fs.readdirSync(fontPath)
+              const fontToUpload = []
+              const expectedFonts = results.extractTemplateData.fonts
+              const fontFiles = fs.readdirSync(fontPath)
 
-          _.forEach(fontFiles, file => {
-            const fontName = path.parse(file).name
-            if (_.indexOf(results.extractTemplateData.fonts, fontName) !== -1) {
-              fontToUpload.push(path.join(fontPath, file))
-              _.pull(expectedFonts, fontName)
+              _.forEach(fontFiles, file => {
+                const fontName = path.parse(file).name
+                if (
+                  _.indexOf(results.extractTemplateData.fonts, fontName) !== -1
+                ) {
+                  fontToUpload.push(path.join(fontPath, file))
+                  _.pull(expectedFonts, fontName)
+                }
+              })
+
+              if (!_.isEmpty(fontToUpload) && _.isEmpty(expectedFonts)) {
+                getFontPathCB(null, { paths: fontToUpload })
+              } else {
+                UI.alert(
+                  'Font missing',
+                  `Specified fonts are missing: [${expectedFonts}]`
+                )
+                getFontPathCB({ break: true })
+              }
             }
-          })
-
-          if (!_.isEmpty(fontToUpload) && _.isEmpty(expectedFonts)) {
-            getFontPathCB(null, { paths: fontToUpload })
-          } else {
-            UI.alert(
-              'Font missing',
-              `Specified fonts are missing: [${expectedFonts}]`
-            )
-            getFontPathCB({ break: true })
-          }
+          )
         },
       ],
       createImage: [

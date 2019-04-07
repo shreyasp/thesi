@@ -72,7 +72,7 @@ function __skpm_run(key, context) {
     /******/
     /******/ /******/ __webpack_require__.p = '' // Load entry module and return exports
     /******/
-    /******/ /******/ return __webpack_require__((__webpack_require__.s = 10))
+    /******/ /******/ return __webpack_require__((__webpack_require__.s = 12))
     /******/
   })(
     /************************************************************************/
@@ -80,7 +80,7 @@ function __skpm_run(key, context) {
       /* 0 */
       /***/ function(module, exports, __webpack_require__) {
         /* globals coscript, sketch */
-        var fiberAvailable = __webpack_require__(11)
+        var fiberAvailable = __webpack_require__(13)
 
         var setTimeout
         var clearTimeout
@@ -203,9 +203,9 @@ function __skpm_run(key, context) {
           /* globals log */
 
           if (true) {
-            var sketchUtils = __webpack_require__(12)
-            var sketchDebugger = __webpack_require__(14)
-            var actions = __webpack_require__(16)
+            var sketchUtils = __webpack_require__(14)
+            var sketchDebugger = __webpack_require__(16)
+            var actions = __webpack_require__(18)
 
             function getStack() {
               return sketchUtils.prepareStackTrace(new Error().stack)
@@ -409,38 +409,10 @@ function __skpm_run(key, context) {
         /***/
       },
       /* 2 */
-      /***/ function(module, exports) {
-        var g
-
-        // This works in non-strict mode
-        g = (function() {
-          return this
-        })()
-
-        try {
-          // This works if eval is allowed (see CSP)
-          g = g || Function('return this')() || (1, eval)('this')
-        } catch (e) {
-          // This works if the window reference is available
-          if (typeof window === 'object') g = window
-        }
-
-        // g can still be undefined, but nothing to do about it...
-        // We return undefined, instead of nothing here, so it's
-        // easier to handle this case. if(!global) { ...}
-
-        module.exports = g
-
-        /***/
-      },
-      /* 3 */
       /***/ function(module, exports, __webpack_require__) {
         'use strict'
-        /* WEBPACK VAR INJECTION */ ;(function(
-          setTimeout,
-          setImmediate,
-          console
-        ) {
+        /* WEBPACK VAR INJECTION */
+        ;(function(setTimeout, setImmediate, console) {
           // Store setTimeout reference so promise-polyfill will be unaffected by
           // other code modifying setTimeout (like sinon.useFakeTimers())
           var setTimeoutFunc = setTimeout
@@ -705,21 +677,22 @@ function __skpm_run(key, context) {
 
         /***/
       },
-      /* 4 */
+      /* 3 */
       /***/ function(module, exports, __webpack_require__) {
         'use strict'
-        /* WEBPACK VAR INJECTION */ ;(function(global) {
+        /* WEBPACK VAR INJECTION */
+        ;(function(global) {
           /*!
- * The buffer module from node.js, for the browser.
- *
- * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
- * @license  MIT
- */
+           * The buffer module from node.js, for the browser.
+           *
+           * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+           * @license  MIT
+           */
           /* eslint-disable no-proto */
 
-          var base64 = __webpack_require__(18)
-          var ieee754 = __webpack_require__(19)
-          var isArray = __webpack_require__(20)
+          var base64 = __webpack_require__(20)
+          var ieee754 = __webpack_require__(21)
+          var isArray = __webpack_require__(22)
 
           exports.Buffer = Buffer
           exports.SlowBuffer = SlowBuffer
@@ -755,8 +728,8 @@ function __skpm_run(key, context) {
               : typedArraySupport()
 
           /*
- * Export kMaxLength after typed array support is determined.
- */
+           * Export kMaxLength after typed array support is determined.
+           */
           exports.kMaxLength = kMaxLength()
 
           function typedArraySupport() {
@@ -1735,10 +1708,10 @@ function __skpm_run(key, context) {
                 firstByte > 0xef
                   ? 4
                   : firstByte > 0xdf
-                    ? 3
-                    : firstByte > 0xbf
-                      ? 2
-                      : 1
+                  ? 3
+                  : firstByte > 0xbf
+                  ? 2
+                  : 1
 
               if (i + bytesPerSequence <= end) {
                 var secondByte, thirdByte, fourthByte, tempCodePoint
@@ -1920,8 +1893,8 @@ function __skpm_run(key, context) {
           }
 
           /*
- * Need to make sure that buffer isn't trying to write out of bounds.
- */
+           * Need to make sure that buffer isn't trying to write out of bounds.
+           */
           function checkOffset(offset, ext, length) {
             if (offset % 1 !== 0 || offset < 0)
               throw new RangeError('offset is not uint')
@@ -2786,7 +2759,32 @@ function __skpm_run(key, context) {
           }
 
           /* WEBPACK VAR INJECTION */
-        }.call(exports, __webpack_require__(2)))
+        }.call(exports, __webpack_require__(4)))
+
+        /***/
+      },
+      /* 4 */
+      /***/ function(module, exports) {
+        var g
+
+        // This works in non-strict mode
+        g = (function() {
+          return this
+        })()
+
+        try {
+          // This works if eval is allowed (see CSP)
+          g = g || Function('return this')() || (1, eval)('this')
+        } catch (e) {
+          // This works if the window reference is available
+          if (typeof window === 'object') g = window
+        }
+
+        // g can still be undefined, but nothing to do about it...
+        // We return undefined, instead of nothing here, so it's
+        // easier to handle this case. if(!global) { ...}
+
+        module.exports = g
 
         /***/
       },
@@ -3108,6 +3106,1057 @@ function __skpm_run(key, context) {
         /***/
       },
       /* 9 */
+      /***/ function(module, exports, __webpack_require__) {
+        /* WEBPACK VAR INJECTION */ ;(function(process, console, Promise) {
+          // Copyright Joyent, Inc. and other Node contributors.
+          //
+          // Permission is hereby granted, free of charge, to any person obtaining a
+          // copy of this software and associated documentation files (the
+          // "Software"), to deal in the Software without restriction, including
+          // without limitation the rights to use, copy, modify, merge, publish,
+          // distribute, sublicense, and/or sell copies of the Software, and to permit
+          // persons to whom the Software is furnished to do so, subject to the
+          // following conditions:
+          //
+          // The above copyright notice and this permission notice shall be included
+          // in all copies or substantial portions of the Software.
+          //
+          // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+          // OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+          // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+          // NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+          // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+          // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+          // USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+          var getOwnPropertyDescriptors =
+            Object.getOwnPropertyDescriptors ||
+            function getOwnPropertyDescriptors(obj) {
+              var keys = Object.keys(obj)
+              var descriptors = {}
+              for (var i = 0; i < keys.length; i++) {
+                descriptors[keys[i]] = Object.getOwnPropertyDescriptor(
+                  obj,
+                  keys[i]
+                )
+              }
+              return descriptors
+            }
+
+          var formatRegExp = /%[sdj%]/g
+          exports.format = function(f) {
+            if (!isString(f)) {
+              var objects = []
+              for (var i = 0; i < arguments.length; i++) {
+                objects.push(inspect(arguments[i]))
+              }
+              return objects.join(' ')
+            }
+
+            var i = 1
+            var args = arguments
+            var len = args.length
+            var str = String(f).replace(formatRegExp, function(x) {
+              if (x === '%%') return '%'
+              if (i >= len) return x
+              switch (x) {
+                case '%s':
+                  return String(args[i++])
+                case '%d':
+                  return Number(args[i++])
+                case '%j':
+                  try {
+                    return JSON.stringify(args[i++])
+                  } catch (_) {
+                    return '[Circular]'
+                  }
+                default:
+                  return x
+              }
+            })
+            for (var x = args[i]; i < len; x = args[++i]) {
+              if (isNull(x) || !isObject(x)) {
+                str += ' ' + x
+              } else {
+                str += ' ' + inspect(x)
+              }
+            }
+            return str
+          }
+
+          // Mark that a method should not be used.
+          // Returns a modified function which warns once by default.
+          // If --no-deprecation is set, then it is a no-op.
+          exports.deprecate = function(fn, msg) {
+            if (
+              typeof process !== 'undefined' &&
+              process.noDeprecation === true
+            ) {
+              return fn
+            }
+
+            // Allow for deprecating things in the process of starting up.
+            if (typeof process === 'undefined') {
+              return function() {
+                return exports.deprecate(fn, msg).apply(this, arguments)
+              }
+            }
+
+            var warned = false
+            function deprecated() {
+              if (!warned) {
+                if (process.throwDeprecation) {
+                  throw new Error(msg)
+                } else if (process.traceDeprecation) {
+                  console.trace(msg)
+                } else {
+                  console.error(msg)
+                }
+                warned = true
+              }
+              return fn.apply(this, arguments)
+            }
+
+            return deprecated
+          }
+
+          var debugs = {}
+          var debugEnviron
+          exports.debuglog = function(set) {
+            if (isUndefined(debugEnviron))
+              debugEnviron = process.env.NODE_DEBUG || ''
+            set = set.toUpperCase()
+            if (!debugs[set]) {
+              if (new RegExp('\\b' + set + '\\b', 'i').test(debugEnviron)) {
+                var pid = process.pid
+                debugs[set] = function() {
+                  var msg = exports.format.apply(exports, arguments)
+                  console.error('%s %d: %s', set, pid, msg)
+                }
+              } else {
+                debugs[set] = function() {}
+              }
+            }
+            return debugs[set]
+          }
+
+          /**
+           * Echos the value of a value. Trys to print the value out
+           * in the best way possible given the different types.
+           *
+           * @param {Object} obj The object to print out.
+           * @param {Object} opts Optional options object that alters the output.
+           */
+          /* legacy: obj, showHidden, depth, colors*/
+          function inspect(obj, opts) {
+            // default options
+            var ctx = {
+              seen: [],
+              stylize: stylizeNoColor,
+            }
+            // legacy...
+            if (arguments.length >= 3) ctx.depth = arguments[2]
+            if (arguments.length >= 4) ctx.colors = arguments[3]
+            if (isBoolean(opts)) {
+              // legacy...
+              ctx.showHidden = opts
+            } else if (opts) {
+              // got an "options" object
+              exports._extend(ctx, opts)
+            }
+            // set default options
+            if (isUndefined(ctx.showHidden)) ctx.showHidden = false
+            if (isUndefined(ctx.depth)) ctx.depth = 2
+            if (isUndefined(ctx.colors)) ctx.colors = false
+            if (isUndefined(ctx.customInspect)) ctx.customInspect = true
+            if (ctx.colors) ctx.stylize = stylizeWithColor
+            return formatValue(ctx, obj, ctx.depth)
+          }
+          exports.inspect = inspect
+
+          // http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
+          inspect.colors = {
+            bold: [1, 22],
+            italic: [3, 23],
+            underline: [4, 24],
+            inverse: [7, 27],
+            white: [37, 39],
+            grey: [90, 39],
+            black: [30, 39],
+            blue: [34, 39],
+            cyan: [36, 39],
+            green: [32, 39],
+            magenta: [35, 39],
+            red: [31, 39],
+            yellow: [33, 39],
+          }
+
+          // Don't use 'blue' not visible on cmd.exe
+          inspect.styles = {
+            special: 'cyan',
+            number: 'yellow',
+            boolean: 'yellow',
+            undefined: 'grey',
+            null: 'bold',
+            string: 'green',
+            date: 'magenta',
+            // "name": intentionally not styling
+            regexp: 'red',
+          }
+
+          function stylizeWithColor(str, styleType) {
+            var style = inspect.styles[styleType]
+
+            if (style) {
+              return (
+                '\u001b[' +
+                inspect.colors[style][0] +
+                'm' +
+                str +
+                '\u001b[' +
+                inspect.colors[style][1] +
+                'm'
+              )
+            } else {
+              return str
+            }
+          }
+
+          function stylizeNoColor(str, styleType) {
+            return str
+          }
+
+          function arrayToHash(array) {
+            var hash = {}
+
+            array.forEach(function(val, idx) {
+              hash[val] = true
+            })
+
+            return hash
+          }
+
+          function formatValue(ctx, value, recurseTimes) {
+            // Provide a hook for user-specified inspect functions.
+            // Check that value is an object with an inspect function on it
+            if (
+              ctx.customInspect &&
+              value &&
+              isFunction(value.inspect) &&
+              // Filter out the util module, it's inspect function is special
+              value.inspect !== exports.inspect &&
+              // Also filter out any prototype objects using the circular check.
+              !(value.constructor && value.constructor.prototype === value)
+            ) {
+              var ret = value.inspect(recurseTimes, ctx)
+              if (!isString(ret)) {
+                ret = formatValue(ctx, ret, recurseTimes)
+              }
+              return ret
+            }
+
+            // Primitive types cannot have properties
+            var primitive = formatPrimitive(ctx, value)
+            if (primitive) {
+              return primitive
+            }
+
+            // Look up the keys of the object.
+            var keys = Object.keys(value)
+            var visibleKeys = arrayToHash(keys)
+
+            if (ctx.showHidden) {
+              keys = Object.getOwnPropertyNames(value)
+            }
+
+            // IE doesn't make error fields non-enumerable
+            // http://msdn.microsoft.com/en-us/library/ie/dww52sbt(v=vs.94).aspx
+            if (
+              isError(value) &&
+              (keys.indexOf('message') >= 0 || keys.indexOf('description') >= 0)
+            ) {
+              return formatError(value)
+            }
+
+            // Some type of object without properties can be shortcutted.
+            if (keys.length === 0) {
+              if (isFunction(value)) {
+                var name = value.name ? ': ' + value.name : ''
+                return ctx.stylize('[Function' + name + ']', 'special')
+              }
+              if (isRegExp(value)) {
+                return ctx.stylize(
+                  RegExp.prototype.toString.call(value),
+                  'regexp'
+                )
+              }
+              if (isDate(value)) {
+                return ctx.stylize(Date.prototype.toString.call(value), 'date')
+              }
+              if (isError(value)) {
+                return formatError(value)
+              }
+            }
+
+            var base = '',
+              array = false,
+              braces = ['{', '}']
+
+            // Make Array say that they are Array
+            if (isArray(value)) {
+              array = true
+              braces = ['[', ']']
+            }
+
+            // Make functions say that they are functions
+            if (isFunction(value)) {
+              var n = value.name ? ': ' + value.name : ''
+              base = ' [Function' + n + ']'
+            }
+
+            // Make RegExps say that they are RegExps
+            if (isRegExp(value)) {
+              base = ' ' + RegExp.prototype.toString.call(value)
+            }
+
+            // Make dates with properties first say the date
+            if (isDate(value)) {
+              base = ' ' + Date.prototype.toUTCString.call(value)
+            }
+
+            // Make error with message first say the error
+            if (isError(value)) {
+              base = ' ' + formatError(value)
+            }
+
+            if (keys.length === 0 && (!array || value.length == 0)) {
+              return braces[0] + base + braces[1]
+            }
+
+            if (recurseTimes < 0) {
+              if (isRegExp(value)) {
+                return ctx.stylize(
+                  RegExp.prototype.toString.call(value),
+                  'regexp'
+                )
+              } else {
+                return ctx.stylize('[Object]', 'special')
+              }
+            }
+
+            ctx.seen.push(value)
+
+            var output
+            if (array) {
+              output = formatArray(ctx, value, recurseTimes, visibleKeys, keys)
+            } else {
+              output = keys.map(function(key) {
+                return formatProperty(
+                  ctx,
+                  value,
+                  recurseTimes,
+                  visibleKeys,
+                  key,
+                  array
+                )
+              })
+            }
+
+            ctx.seen.pop()
+
+            return reduceToSingleString(output, base, braces)
+          }
+
+          function formatPrimitive(ctx, value) {
+            if (isUndefined(value)) return ctx.stylize('undefined', 'undefined')
+            if (isString(value)) {
+              var simple =
+                "'" +
+                JSON.stringify(value)
+                  .replace(/^"|"$/g, '')
+                  .replace(/'/g, "\\'")
+                  .replace(/\\"/g, '"') +
+                "'"
+              return ctx.stylize(simple, 'string')
+            }
+            if (isNumber(value)) return ctx.stylize('' + value, 'number')
+            if (isBoolean(value)) return ctx.stylize('' + value, 'boolean')
+            // For some reason typeof null is "object", so special case here.
+            if (isNull(value)) return ctx.stylize('null', 'null')
+          }
+
+          function formatError(value) {
+            return '[' + Error.prototype.toString.call(value) + ']'
+          }
+
+          function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
+            var output = []
+            for (var i = 0, l = value.length; i < l; ++i) {
+              if (hasOwnProperty(value, String(i))) {
+                output.push(
+                  formatProperty(
+                    ctx,
+                    value,
+                    recurseTimes,
+                    visibleKeys,
+                    String(i),
+                    true
+                  )
+                )
+              } else {
+                output.push('')
+              }
+            }
+            keys.forEach(function(key) {
+              if (!key.match(/^\d+$/)) {
+                output.push(
+                  formatProperty(
+                    ctx,
+                    value,
+                    recurseTimes,
+                    visibleKeys,
+                    key,
+                    true
+                  )
+                )
+              }
+            })
+            return output
+          }
+
+          function formatProperty(
+            ctx,
+            value,
+            recurseTimes,
+            visibleKeys,
+            key,
+            array
+          ) {
+            var name, str, desc
+            desc = Object.getOwnPropertyDescriptor(value, key) || {
+              value: value[key],
+            }
+            if (desc.get) {
+              if (desc.set) {
+                str = ctx.stylize('[Getter/Setter]', 'special')
+              } else {
+                str = ctx.stylize('[Getter]', 'special')
+              }
+            } else {
+              if (desc.set) {
+                str = ctx.stylize('[Setter]', 'special')
+              }
+            }
+            if (!hasOwnProperty(visibleKeys, key)) {
+              name = '[' + key + ']'
+            }
+            if (!str) {
+              if (ctx.seen.indexOf(desc.value) < 0) {
+                if (isNull(recurseTimes)) {
+                  str = formatValue(ctx, desc.value, null)
+                } else {
+                  str = formatValue(ctx, desc.value, recurseTimes - 1)
+                }
+                if (str.indexOf('\n') > -1) {
+                  if (array) {
+                    str = str
+                      .split('\n')
+                      .map(function(line) {
+                        return '  ' + line
+                      })
+                      .join('\n')
+                      .substr(2)
+                  } else {
+                    str =
+                      '\n' +
+                      str
+                        .split('\n')
+                        .map(function(line) {
+                          return '   ' + line
+                        })
+                        .join('\n')
+                  }
+                }
+              } else {
+                str = ctx.stylize('[Circular]', 'special')
+              }
+            }
+            if (isUndefined(name)) {
+              if (array && key.match(/^\d+$/)) {
+                return str
+              }
+              name = JSON.stringify('' + key)
+              if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
+                name = name.substr(1, name.length - 2)
+                name = ctx.stylize(name, 'name')
+              } else {
+                name = name
+                  .replace(/'/g, "\\'")
+                  .replace(/\\"/g, '"')
+                  .replace(/(^"|"$)/g, "'")
+                name = ctx.stylize(name, 'string')
+              }
+            }
+
+            return name + ': ' + str
+          }
+
+          function reduceToSingleString(output, base, braces) {
+            var numLinesEst = 0
+            var length = output.reduce(function(prev, cur) {
+              numLinesEst++
+              if (cur.indexOf('\n') >= 0) numLinesEst++
+              return prev + cur.replace(/\u001b\[\d\d?m/g, '').length + 1
+            }, 0)
+
+            if (length > 60) {
+              return (
+                braces[0] +
+                (base === '' ? '' : base + '\n ') +
+                ' ' +
+                output.join(',\n  ') +
+                ' ' +
+                braces[1]
+              )
+            }
+
+            return braces[0] + base + ' ' + output.join(', ') + ' ' + braces[1]
+          }
+
+          // NOTE: These type checking functions intentionally don't use `instanceof`
+          // because it is fragile and can be easily faked with `Object.create()`.
+          function isArray(ar) {
+            return Array.isArray(ar)
+          }
+          exports.isArray = isArray
+
+          function isBoolean(arg) {
+            return typeof arg === 'boolean'
+          }
+          exports.isBoolean = isBoolean
+
+          function isNull(arg) {
+            return arg === null
+          }
+          exports.isNull = isNull
+
+          function isNullOrUndefined(arg) {
+            return arg == null
+          }
+          exports.isNullOrUndefined = isNullOrUndefined
+
+          function isNumber(arg) {
+            return typeof arg === 'number'
+          }
+          exports.isNumber = isNumber
+
+          function isString(arg) {
+            return typeof arg === 'string'
+          }
+          exports.isString = isString
+
+          function isSymbol(arg) {
+            return typeof arg === 'symbol'
+          }
+          exports.isSymbol = isSymbol
+
+          function isUndefined(arg) {
+            return arg === void 0
+          }
+          exports.isUndefined = isUndefined
+
+          function isRegExp(re) {
+            return isObject(re) && objectToString(re) === '[object RegExp]'
+          }
+          exports.isRegExp = isRegExp
+
+          function isObject(arg) {
+            return typeof arg === 'object' && arg !== null
+          }
+          exports.isObject = isObject
+
+          function isDate(d) {
+            return isObject(d) && objectToString(d) === '[object Date]'
+          }
+          exports.isDate = isDate
+
+          function isError(e) {
+            return (
+              isObject(e) &&
+              (objectToString(e) === '[object Error]' || e instanceof Error)
+            )
+          }
+          exports.isError = isError
+
+          function isFunction(arg) {
+            return typeof arg === 'function'
+          }
+          exports.isFunction = isFunction
+
+          function isPrimitive(arg) {
+            return (
+              arg === null ||
+              typeof arg === 'boolean' ||
+              typeof arg === 'number' ||
+              typeof arg === 'string' ||
+              typeof arg === 'symbol' || // ES6 symbol
+              typeof arg === 'undefined'
+            )
+          }
+          exports.isPrimitive = isPrimitive
+
+          exports.isBuffer = __webpack_require__(25)
+
+          function objectToString(o) {
+            return Object.prototype.toString.call(o)
+          }
+
+          function pad(n) {
+            return n < 10 ? '0' + n.toString(10) : n.toString(10)
+          }
+
+          var months = [
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'May',
+            'Jun',
+            'Jul',
+            'Aug',
+            'Sep',
+            'Oct',
+            'Nov',
+            'Dec',
+          ]
+
+          // 26 Feb 16:19:34
+          function timestamp() {
+            var d = new Date()
+            var time = [
+              pad(d.getHours()),
+              pad(d.getMinutes()),
+              pad(d.getSeconds()),
+            ].join(':')
+            return [d.getDate(), months[d.getMonth()], time].join(' ')
+          }
+
+          // log is just a thin wrapper to console.log that prepends a timestamp
+          exports.log = function() {
+            console.log(
+              '%s - %s',
+              timestamp(),
+              exports.format.apply(exports, arguments)
+            )
+          }
+
+          /**
+           * Inherit the prototype methods from one constructor into another.
+           *
+           * The Function.prototype.inherits from lang.js rewritten as a standalone
+           * function (not on Function.prototype). NOTE: If this file is to be loaded
+           * during bootstrapping this function needs to be rewritten using some native
+           * functions as prototype setup using normal JavaScript does not work as
+           * expected during bootstrapping (see mirror.js in r114903).
+           *
+           * @param {function} ctor Constructor function which needs to inherit the
+           *     prototype.
+           * @param {function} superCtor Constructor function to inherit prototype from.
+           */
+          exports.inherits = __webpack_require__(26)
+
+          exports._extend = function(origin, add) {
+            // Don't do anything if add isn't an object
+            if (!add || !isObject(add)) return origin
+
+            var keys = Object.keys(add)
+            var i = keys.length
+            while (i--) {
+              origin[keys[i]] = add[keys[i]]
+            }
+            return origin
+          }
+
+          function hasOwnProperty(obj, prop) {
+            return Object.prototype.hasOwnProperty.call(obj, prop)
+          }
+
+          var kCustomPromisifiedSymbol =
+            typeof Symbol !== 'undefined'
+              ? Symbol('util.promisify.custom')
+              : undefined
+
+          exports.promisify = function promisify(original) {
+            if (typeof original !== 'function')
+              throw new TypeError(
+                'The "original" argument must be of type Function'
+              )
+
+            if (
+              kCustomPromisifiedSymbol &&
+              original[kCustomPromisifiedSymbol]
+            ) {
+              var fn = original[kCustomPromisifiedSymbol]
+              if (typeof fn !== 'function') {
+                throw new TypeError(
+                  'The "util.promisify.custom" argument must be of type Function'
+                )
+              }
+              Object.defineProperty(fn, kCustomPromisifiedSymbol, {
+                value: fn,
+                enumerable: false,
+                writable: false,
+                configurable: true,
+              })
+              return fn
+            }
+
+            function fn() {
+              var promiseResolve, promiseReject
+              var promise = new Promise(function(resolve, reject) {
+                promiseResolve = resolve
+                promiseReject = reject
+              })
+
+              var args = []
+              for (var i = 0; i < arguments.length; i++) {
+                args.push(arguments[i])
+              }
+              args.push(function(err, value) {
+                if (err) {
+                  promiseReject(err)
+                } else {
+                  promiseResolve(value)
+                }
+              })
+
+              try {
+                original.apply(this, args)
+              } catch (err) {
+                promiseReject(err)
+              }
+
+              return promise
+            }
+
+            Object.setPrototypeOf(fn, Object.getPrototypeOf(original))
+
+            if (kCustomPromisifiedSymbol)
+              Object.defineProperty(fn, kCustomPromisifiedSymbol, {
+                value: fn,
+                enumerable: false,
+                writable: false,
+                configurable: true,
+              })
+            return Object.defineProperties(
+              fn,
+              getOwnPropertyDescriptors(original)
+            )
+          }
+
+          exports.promisify.custom = kCustomPromisifiedSymbol
+
+          function callbackifyOnRejected(reason, cb) {
+            // `!reason` guard inspired by bluebird (Ref: https://goo.gl/t5IS6M).
+            // Because `null` is a special error value in callbacks which means "no error
+            // occurred", we error-wrap so the callback consumer can distinguish between
+            // "the promise rejected with null" or "the promise fulfilled with undefined".
+            if (!reason) {
+              var newReason = new Error(
+                'Promise was rejected with a falsy value'
+              )
+              newReason.reason = reason
+              reason = newReason
+            }
+            return cb(reason)
+          }
+
+          function callbackify(original) {
+            if (typeof original !== 'function') {
+              throw new TypeError(
+                'The "original" argument must be of type Function'
+              )
+            }
+
+            // We DO NOT return the promise as it gives the user a false sense that
+            // the promise is actually somehow related to the callback's execution
+            // and that the callback throwing will reject the promise.
+            function callbackified() {
+              var args = []
+              for (var i = 0; i < arguments.length; i++) {
+                args.push(arguments[i])
+              }
+
+              var maybeCb = args.pop()
+              if (typeof maybeCb !== 'function') {
+                throw new TypeError(
+                  'The last argument must be of type Function'
+                )
+              }
+              var self = this
+              var cb = function() {
+                return maybeCb.apply(self, arguments)
+              }
+              // In true node style we process the callback on `nextTick` with all the
+              // implications (stack, `uncaughtException`, `async_hooks`)
+              original.apply(this, args).then(
+                function(ret) {
+                  process.nextTick(cb, null, ret)
+                },
+                function(rej) {
+                  process.nextTick(callbackifyOnRejected, rej, cb)
+                }
+              )
+            }
+
+            Object.setPrototypeOf(
+              callbackified,
+              Object.getPrototypeOf(original)
+            )
+            Object.defineProperties(
+              callbackified,
+              getOwnPropertyDescriptors(original)
+            )
+            return callbackified
+          }
+          exports.callbackify = callbackify
+
+          /* WEBPACK VAR INJECTION */
+        }.call(
+          exports,
+          __webpack_require__(5),
+          __webpack_require__(1),
+          __webpack_require__(2)
+        ))
+
+        /***/
+      },
+      /* 10 */
+      /***/ function(module, exports) {
+        function isKindOfClass(arg, nativeClass) {
+          return (
+            !!arg &&
+            !!arg.isKindOfClass &&
+            toBoolean(arg.isKindOfClass(nativeClass))
+          )
+        }
+
+        function objectToString(o) {
+          return Object.prototype.toString.call(o)
+        }
+
+        // check if the argument is a native sketch object
+        function getNativeClass(arg) {
+          try {
+            return (
+              arg &&
+              arg.isKindOfClass &&
+              typeof arg.class === 'function' &&
+              String(arg.class())
+            )
+          } catch (err) {
+            return undefined
+          }
+        }
+        exports.getNativeClass = getNativeClass
+
+        function isNativeObject(arg) {
+          return !!getNativeClass(arg)
+        }
+        exports.isNativeObject = isNativeObject
+
+        /**
+         * Coerce common NSObjects to their JS counterparts
+         * @param arg Any object
+         *
+         * Converts NSDictionary, NSArray, NSString, and NSNumber to
+         * native JS equivilents.
+         *
+         * Note that NSDictionary and NSArray elements are not recursively converted
+         * unless the options.recurse is set to `true`
+         */
+        function toJSObject(arg, options) {
+          if (arg) {
+            if (isObject(arg)) {
+              var obj = toObject(arg, options)
+              if (options && options.recurse) {
+                Object.keys(obj).forEach(function(k) {
+                  obj[k] = toJSObject(obj[k], options)
+                })
+              }
+              return obj
+            } else if (isArray(arg)) {
+              var arr = toArray(arg, options)
+              if (options && options.recurse) {
+                arr.forEach(function(x, i) {
+                  arr[i] = toJSObject(x, options)
+                })
+              }
+              return arr
+            } else if (isString(arg)) {
+              return String(arg)
+            } else if (isBoolean(arg)) {
+              return toBoolean(arg)
+            } else if (isNumber(arg)) {
+              return Number(arg)
+            }
+          }
+          return arg
+        }
+        exports.toJSObject = toJSObject
+
+        function isArray(ar) {
+          if (Array.isArray(ar)) {
+            return true
+          }
+          return isKindOfClass(ar, NSArray)
+        }
+        exports.isArray = isArray
+
+        function toArray(object, options) {
+          if (Array.isArray(object)) {
+            return object
+          }
+          var arr = []
+          for (var j = 0; j < (object || []).length; j += 1) {
+            arr.push(object[j])
+          }
+          return arr
+        }
+        exports.toArray = toArray
+
+        function isBoolean(arg) {
+          if (typeof arg === 'boolean') {
+            return true
+          }
+          return getNativeClass(arg) === '__NSCFBoolean'
+        }
+        exports.isBoolean = isBoolean
+
+        function toBoolean(arg) {
+          if (typeof arg === 'boolean') {
+            return arg
+          }
+          return Boolean(Number(arg))
+        }
+        exports.toBoolean = toBoolean
+
+        function isNull(arg) {
+          return arg === null
+        }
+        exports.isNull = isNull
+
+        function isNullOrUndefined(arg) {
+          return arg == null
+        }
+        exports.isNullOrUndefined = isNullOrUndefined
+
+        function isNumber(arg) {
+          if (typeof arg === 'number') {
+            return true
+          }
+          return isKindOfClass(arg, NSNumber)
+        }
+        exports.isNumber = isNumber
+
+        function isString(arg) {
+          if (typeof arg === 'string') {
+            return true
+          }
+          return isKindOfClass(arg, NSString)
+        }
+        exports.isString = isString
+
+        function isSymbol(arg) {
+          return typeof arg === 'symbol'
+        }
+        exports.isSymbol = isSymbol
+
+        function isUndefined(arg) {
+          return typeof arg === 'undefined'
+        }
+        exports.isUndefined = isUndefined
+
+        function isRegExp(re) {
+          return isObject(re) && objectToString(re) === '[object RegExp]'
+        }
+        exports.isRegExp = isRegExp
+
+        function isObject(arg) {
+          if (typeof arg === 'object' && arg !== null && !isNativeObject(arg)) {
+            return true
+          }
+          return (
+            isKindOfClass(arg, NSDictionary) || isKindOfClass(arg, MOStruct)
+          )
+        }
+        exports.isObject = isObject
+
+        function toObject(obj) {
+          if (isKindOfClass(obj, MOStruct)) {
+            return obj.memberNames().reduce(function(prev, k) {
+              prev[k] = obj[k]
+              return prev
+            }, {})
+          } else if (
+            isNativeObject(obj) &&
+            typeof obj.objectForKey === 'function'
+          ) {
+            var res = {}
+            Object.keys(obj).forEach(function(key) {
+              res[key] = obj.objectForKey(key)
+            })
+            return res
+          } else if (typeof obj === 'object') {
+            return obj
+          }
+          return Object(obj)
+        }
+        exports.toObject = toObject
+
+        function isDate(d) {
+          return isObject(d) && objectToString(d) === '[object Date]'
+        }
+        exports.isDate = isDate
+
+        function isError(e) {
+          return (
+            isObject(e) &&
+            (objectToString(e) === '[object Error]' || e instanceof Error)
+          )
+        }
+        exports.isError = isError
+
+        function isFunction(arg) {
+          return typeof arg === 'function' || arg instanceof MOMethod
+        }
+        exports.isFunction = isFunction
+
+        function isPrimitive(arg) {
+          return (
+            isNull(arg) ||
+            isBoolean(arg) ||
+            isNumber(arg) ||
+            isString(arg) ||
+            isSymbol(arg) ||
+            isUndefined(arg)
+          )
+        }
+        exports.isPrimitive = isPrimitive
+
+        exports.isBuffer = function isBuffer(arg) {
+          return (
+            arg &&
+            typeof arg === 'object' &&
+            typeof arg.copy === 'function' &&
+            typeof arg.fill === 'function' &&
+            typeof arg.readUInt8 === 'function'
+          )
+        }
+
+        /***/
+      },
+      /* 11 */
       /***/ function(module, exports) {
         module.exports = function(module) {
           if (!module.webpackPolyfill) {
@@ -3134,17 +4183,18 @@ function __skpm_run(key, context) {
 
         /***/
       },
-      /* 10 */
+      /* 12 */
       /***/ function(module, exports, __webpack_require__) {
         'use strict'
-        /* WEBPACK VAR INJECTION */ ;(function(Promise) {
+        /* WEBPACK VAR INJECTION */
+        ;(function(Promise) {
           Object.defineProperty(exports, '__esModule', {
             value: true,
           })
 
           exports['default'] = function(context) {
             // Get wrapped native Document object from Context
-            var doc = _sketch2['default'].fromNative(context.document)
+            var doc = _sketch2['default'].getSelectedDocument()
             var page = doc && doc.selectedPage
             var fileHash = generateUUID()
             var baseURL = 'https://status-node-api.shreyasp.com'
@@ -3165,7 +4215,7 @@ function __skpm_run(key, context) {
                         return getCategoryCB(null, jsonResponse.data.categories)
                       })
                       ['catch'](function(err) {
-                        return getCategoryCB(err)
+                        getCategoryCB(err)
                       })
                   }
 
@@ -3180,44 +4230,50 @@ function __skpm_run(key, context) {
                         return o.displayName
                       }
                     )
-                    var selection = _ui2['default'].getSelectionFromUser(
+                    _ui2['default'].getInputFromUser(
                       'Please select a category for the template',
-                      categories
-                    )
-
-                    // NOTE: Selection is an array of size 3
-                    // selection[0] === Response Code NSAlertFirstButtonReturn or NSAlertSecondButtonReturn
-                    // selection[1] === index of selected option
-                    // selection[2] === whether user clicked on Ok or Cancel button on the dialog
-                    if (!selection[2]) {
-                      getSelCategoryCB({
-                        break: true,
-                        error: false,
-                      })
-                    }
-
-                    var selectedCategory = categories[selection[1]]
-                    getSelCategoryCB(
-                      null,
-                      _lodash2['default'].filter(
-                        results.getCategories,
-                        function(o) {
-                          return o.displayName === selectedCategory
+                      {
+                        type: _ui2['default'].INPUT_TYPE.selection,
+                        possibleValues: categories,
+                      },
+                      function(err, selection) {
+                        if (err) {
+                          return
+                        } else if (!selection) {
+                          getSelCategoryCB({
+                            break: true,
+                            error: false,
+                          })
                         }
-                      )
+
+                        getSelCategoryCB(
+                          null,
+                          _lodash2['default'].filter(
+                            results.getCategories,
+                            function(o) {
+                              return o.displayName === selection
+                            }
+                          )
+                        )
+                      }
                     )
                   },
                 ],
                 getImageName: [
                   'getSelectedCategory',
                   function(results, getImageNameCB) {
-                    var imageName = _ui2['default'].getStringFromUser(
+                    _ui2['default'].getInputFromUser(
                       'Please enter unique name for the template',
-                      'Template_Image_Name (Do not use spaces)'
+                      {
+                        type: _ui2['default'].INPUT_TYPE.string,
+                        initialValue: 'Template_Image_Name (Do not use spaces)',
+                      },
+                      function(err, imageName) {
+                        getImageNameCB(null, {
+                          imageName: imageName,
+                        })
+                      }
                     )
-                    getImageNameCB(null, {
-                      imageName: imageName,
-                    })
                   },
                 ],
                 extractTemplateData: [
@@ -3272,7 +4328,7 @@ function __skpm_run(key, context) {
                     )
 
                     // Save the template as PNG
-                    exportPNG(page, 'template', fileHash)
+                    exportImage(page.layers, 'template', fileHash)
                     extractTemplDataCB(null, {
                       layerMetaObj: layerMetaObj,
                       fonts: fonts,
@@ -3282,53 +4338,58 @@ function __skpm_run(key, context) {
                 getFontPath: [
                   'extractTemplateData',
                   function(results, getFontPathCB) {
-                    var fontPath = _ui2['default'].getStringFromUser(
+                    _ui2['default'].getInputFromUser(
                       'Please specify the path to fonts folder',
-                      '/path/to/fonts/folder'
-                    )
-                    try {
-                      _fs2['default'].accessSync(fontPath)
-                    } catch (err) {
-                      _ui2['default'].alert(
-                        'Font Path Error',
-                        "Specified font path doesn't exist. Please restart and input correct font path"
-                      )
-                      getFontPathCB(err)
-                    }
+                      {
+                        type: _ui2['default'].INPUT_TYPE.string,
+                        initialValue: '/path/to/fonts/folder',
+                      },
+                      function(err, fontPath) {
+                        try {
+                          _fs2['default'].accessSync(fontPath)
+                        } catch (inErr) {
+                          _ui2['default'].alert(
+                            'Font Path Error',
+                            "Specified font path doesn't exist. Please restart and input correct font path"
+                          )
+                          getFontPathCB(inErr)
+                        }
 
-                    var fontToUpload = []
-                    var expectedFonts = results.extractTemplateData.fonts
-                    var fontFiles = _fs2['default'].readdirSync(fontPath)
+                        var fontToUpload = []
+                        var expectedFonts = results.extractTemplateData.fonts
+                        var fontFiles = _fs2['default'].readdirSync(fontPath)
 
-                    _lodash2['default'].forEach(fontFiles, function(file) {
-                      var fontName = _path2['default'].parse(file).name
-                      if (
-                        _lodash2['default'].indexOf(
-                          results.extractTemplateData.fonts,
-                          fontName
-                        ) !== -1
-                      ) {
-                        fontToUpload.push(
-                          _path2['default'].join(fontPath, file)
-                        )
-                        _lodash2['default'].pull(expectedFonts, fontName)
+                        _lodash2['default'].forEach(fontFiles, function(file) {
+                          var fontName = _path2['default'].parse(file).name
+                          if (
+                            _lodash2['default'].indexOf(
+                              results.extractTemplateData.fonts,
+                              fontName
+                            ) !== -1
+                          ) {
+                            fontToUpload.push(
+                              _path2['default'].join(fontPath, file)
+                            )
+                            _lodash2['default'].pull(expectedFonts, fontName)
+                          }
+                        })
+
+                        if (
+                          !_lodash2['default'].isEmpty(fontToUpload) &&
+                          _lodash2['default'].isEmpty(expectedFonts)
+                        ) {
+                          getFontPathCB(null, { paths: fontToUpload })
+                        } else {
+                          _ui2['default'].alert(
+                            'Font missing',
+                            'Specified fonts are missing: [' +
+                              String(expectedFonts) +
+                              ']'
+                          )
+                          getFontPathCB({ break: true })
+                        }
                       }
-                    })
-
-                    if (
-                      !_lodash2['default'].isEmpty(fontToUpload) &&
-                      _lodash2['default'].isEmpty(expectedFonts)
-                    ) {
-                      getFontPathCB(null, { paths: fontToUpload })
-                    } else {
-                      _ui2['default'].alert(
-                        'Font missing',
-                        'Specified fonts are missing: [' +
-                          String(expectedFonts) +
-                          ']'
-                      )
-                      getFontPathCB({ break: true })
-                    }
+                    )
                   },
                 ],
                 createImage: [
@@ -3569,7 +4630,6 @@ function __skpm_run(key, context) {
               Infinity,
               function(err, results) {
                 // TODO: Still to write logs for success and failure.
-                JSON.stringify(results)
                 if (err) {
                   if (err['break']) {
                     context.document.showMessage(
@@ -3597,45 +4657,41 @@ function __skpm_run(key, context) {
             )
           }
 
-          var _fs = __webpack_require__(17)
+          var _fs = __webpack_require__(19)
 
           var _fs2 = _interopRequireDefault(_fs)
 
-          var _path = __webpack_require__(21)
+          var _path = __webpack_require__(23)
 
           var _path2 = _interopRequireDefault(_path)
 
-          var _util = __webpack_require__(22)
+          var _util = __webpack_require__(27)
 
           var _util2 = _interopRequireDefault(_util)
 
-          var _async = __webpack_require__(27)
+          var _async = __webpack_require__(32)
 
           var _async2 = _interopRequireDefault(_async)
 
-          var _lodash = __webpack_require__(28)
+          var _lodash = __webpack_require__(33)
 
           var _lodash2 = _interopRequireDefault(_lodash)
 
-          var _sketch = __webpack_require__(29)
+          var _sketch = __webpack_require__(34)
 
           var _sketch2 = _interopRequireDefault(_sketch)
 
-          var _sketchPolyfillFetch = __webpack_require__(30)
+          var _sketchPolyfillFetch = __webpack_require__(35)
 
           var _sketchPolyfillFetch2 = _interopRequireDefault(
             _sketchPolyfillFetch
           )
 
-          var _formData = __webpack_require__(33)
+          var _formData = __webpack_require__(38)
 
           var _formData2 = _interopRequireDefault(_formData)
 
-          var _dom = __webpack_require__(37)
-
-          var _dom2 = _interopRequireDefault(_dom)
-
-          var _ui = __webpack_require__(38)
+          var _ui = __webpack_require__(39)
 
           var _ui2 = _interopRequireDefault(_ui)
 
@@ -3679,7 +4735,7 @@ function __skpm_run(key, context) {
             )
           }
 
-          function exportPNG(image, suffix, fileHash, options) {
+          function exportImage(image, suffix, fileHash, options) {
             var defaultOptions = {
               formats: 'jpg',
               scale: '1',
@@ -3689,10 +4745,14 @@ function __skpm_run(key, context) {
                 '/tmp/thesi/' + String(fileHash) + '/images/' + String(suffix),
               'use-id-for-name': true,
             }
-            _dom2['default']['export'](
-              image,
-              _lodash2['default'].merge(defaultOptions, options)
-            )
+            try {
+              _sketch2['default']['export'](
+                image,
+                _lodash2['default'].merge(defaultOptions, options)
+              )
+            } catch (err) {
+              log(err)
+            }
           }
 
           // This function is kind of niche extraction function written specifically
@@ -3743,7 +4803,7 @@ function __skpm_run(key, context) {
             )
             imageMetaObject.layerParent = parent
             imageMetaObject.type = 'image'
-            exportPNG(layer, 'background', fileHash)
+            exportImage(layer, 'background', fileHash)
 
             return _defineProperty(
               {},
@@ -3768,7 +4828,7 @@ function __skpm_run(key, context) {
             frame.height = layerFrame.height
 
             var textLayerMeta = {
-              alignment: layer.alignment,
+              alignment: layer.style.alignment,
               style: _lodash2['default'].pick(layer.style, textStyleKeys),
               text: layer.text,
               font: extractLayerFontData(layer),
@@ -3777,10 +4837,11 @@ function __skpm_run(key, context) {
               frame: frame,
             }
 
-            textLayerMeta.style.color = _lodash2['default'].get(
-              layer,
-              'style.fills[0].color'
+            textLayerMeta.style.color = _lodash2['default'].isEmpty(
+              layer.style.fills
             )
+              ? _lodash2['default'].get(layer, 'style.textColor')
+              : _lodash2['default'].get(layer, 'style.fills[0].color')
             return _defineProperty(
               {},
               _lodash2['default'].snakeCase(layer.name),
@@ -3821,7 +4882,6 @@ function __skpm_run(key, context) {
             // Removing any dashes, underscores or spaces from the layer name
             // and converting it to camelCased key for preventing any issues
             // while saving to database :)
-
             if (layer.type === 'Image') {
               _lodash2['default'].assign(
                 data,
@@ -3839,11 +4899,11 @@ function __skpm_run(key, context) {
 
           // Entry Point for the Plugin
           /* WEBPACK VAR INJECTION */
-        }.call(exports, __webpack_require__(3)))
+        }.call(exports, __webpack_require__(2)))
 
         /***/
       },
-      /* 11 */
+      /* 13 */
       /***/ function(module, exports) {
         module.exports = function() {
           return typeof coscript !== 'undefined' && coscript.createFiber
@@ -3851,9 +4911,9 @@ function __skpm_run(key, context) {
 
         /***/
       },
-      /* 12 */
+      /* 14 */
       /***/ function(module, exports, __webpack_require__) {
-        var prepareValue = __webpack_require__(13)
+        var prepareValue = __webpack_require__(15)
 
         module.exports.toArray = __webpack_require__(8)
         module.exports.prepareStackTrace = __webpack_require__(7)
@@ -3863,7 +4923,7 @@ function __skpm_run(key, context) {
 
         /***/
       },
-      /* 13 */
+      /* 15 */
       /***/ function(module, exports, __webpack_require__) {
         /* eslint-disable no-not-accumulator-reassign/no-not-accumulator-reassign, no-var, vars-on-top, prefer-template, prefer-arrow-callback, func-names, prefer-destructuring, object-shorthand */
         var prepareStackTrace = __webpack_require__(7)
@@ -4055,10 +5115,10 @@ function __skpm_run(key, context) {
 
         /***/
       },
-      /* 14 */
+      /* 16 */
       /***/ function(module, exports, __webpack_require__) {
         /* eslint-disable no-not-accumulator-reassign/no-not-accumulator-reassign, no-var, vars-on-top, prefer-template, prefer-arrow-callback, func-names, prefer-destructuring, object-shorthand */
-        var remoteWebview = __webpack_require__(15)
+        var remoteWebview = __webpack_require__(17)
 
         module.exports.identifier = 'skpm.debugger'
 
@@ -4081,7 +5141,7 @@ function __skpm_run(key, context) {
 
         /***/
       },
-      /* 15 */
+      /* 17 */
       /***/ function(module, exports) {
         /* globals NSThread */
 
@@ -4109,7 +5169,7 @@ function __skpm_run(key, context) {
 
         /***/
       },
-      /* 16 */
+      /* 18 */
       /***/ function(module, exports) {
         module.exports.SET_TREE = 'elements/SET_TREE'
         module.exports.SET_PAGE_METADATA = 'elements/SET_PAGE_METADATA'
@@ -4127,18 +5187,94 @@ function __skpm_run(key, context) {
 
         /***/
       },
-      /* 17 */
+      /* 19 */
       /***/ function(module, exports, __webpack_require__) {
         // TODO: async. Should probably be done with NSFileHandle and some notifications
         // TODO: file descriptor. Needs to be done with NSFileHandle
-        var Buffer = __webpack_require__(4).Buffer
+        var Buffer = __webpack_require__(3).Buffer
+
+        var ERRORS = {
+          EPERM: {
+            message: 'operation not permitted',
+            errno: -1,
+          },
+          ENOENT: {
+            message: 'no such file or directory',
+            errno: -2,
+          },
+          EACCES: {
+            message: 'permission denied',
+            errno: -13,
+          },
+          ENOTDIR: {
+            message: 'not a directory',
+            errno: -20,
+          },
+          EISDIR: {
+            message: 'illegal operation on a directory',
+            errno: -21,
+          },
+        }
+
+        function fsError(code, options) {
+          var error = new Error(
+            code +
+              ': ' +
+              ERRORS[code].message +
+              ', ' +
+              (options.syscall || '') +
+              (options.path ? " '" + options.path + "'" : '')
+          )
+
+          Object.keys(options).forEach(function(k) {
+            error[k] = options[k]
+          })
+
+          error.code = code
+          error.errno = ERRORS[code].errno
+
+          return error
+        }
+
+        function fsErrorForPath(path, shouldBeDir, err, syscall) {
+          var fileManager = NSFileManager.defaultManager()
+          var doesExist = fileManager.fileExistsAtPath(path)
+          if (!doesExist) {
+            return fsError('ENOENT', {
+              path: path,
+              syscall: syscall || 'open',
+            })
+          }
+          var isReadable = fileManager.isReadableFileAtPath(path)
+          if (!isReadable) {
+            return fsError('EACCES', {
+              path: path,
+              syscall: syscall || 'open',
+            })
+          }
+          if (typeof shouldBeDir !== 'undefined') {
+            var isDirectory = module.exports.lstatSync(path).isDirectory()
+            if (isDirectory && !shouldBeDir) {
+              return fsError('EISDIR', {
+                path: path,
+                syscall: syscall || 'read',
+              })
+            } else if (!isDirectory && shouldBeDir) {
+              return fsError('ENOTDIR', {
+                path: path,
+                syscall: syscall || 'read',
+              })
+            }
+          }
+          return new Error(err || 'Unknown error while manipulating ' + path)
+        }
 
         function encodingFromOptions(options, defaultValue) {
           return options && options.encoding
             ? String(options.encoding)
             : options
-              ? String(options)
-              : defaultValue
+            ? String(options)
+            : defaultValue
         }
 
         module.exports.constants = {
@@ -4231,7 +5367,7 @@ function __skpm_run(key, context) {
           )
 
           if (err.value() !== null) {
-            throw new Error(err.value())
+            throw fsErrorForPath(path, undefined, err.value())
           }
         }
 
@@ -4241,7 +5377,7 @@ function __skpm_run(key, context) {
           fileManager.copyItemAtPath_toPath_error(path, dest, err)
 
           if (err.value() !== null) {
-            throw new Error(err.value())
+            throw fsErrorForPath(path, false, err.value())
           }
         }
 
@@ -4256,17 +5392,27 @@ function __skpm_run(key, context) {
           fileManager.linkItemAtPath_toPath_error(existingPath, newPath, err)
 
           if (err.value() !== null) {
-            throw new Error(err.value())
+            throw fsErrorForPath(existingPath, undefined, err.value())
           }
         }
 
-        module.exports.mkdirSync = function(path, mode) {
-          mode = mode || 0o777
+        module.exports.mkdirSync = function(path, options) {
+          var mode = 0o777
+          var recursive = false
+          if (options && options.mode) {
+            mode = options.mode
+          }
+          if (options && options.recursive) {
+            recursive = options.recursive
+          }
+          if (typeof options === 'number') {
+            mode = options
+          }
           var err = MOPointer.alloc().init()
           var fileManager = NSFileManager.defaultManager()
           fileManager.createDirectoryAtPath_withIntermediateDirectories_attributes_error(
             path,
-            false,
+            recursive,
             {
               NSFilePosixPermissions: mode,
             },
@@ -4310,6 +5456,10 @@ function __skpm_run(key, context) {
           var encoding = encodingFromOptions(options, 'buffer')
           var fileManager = NSFileManager.defaultManager()
           var data = fileManager.contentsAtPath(path)
+          if (!data) {
+            throw fsErrorForPath(path, false)
+          }
+
           var buffer = Buffer.from(data)
 
           if (encoding === 'buffer') {
@@ -4330,7 +5480,7 @@ function __skpm_run(key, context) {
           )
 
           if (err.value() !== null) {
-            throw new Error(err.value())
+            throw fsErrorForPath(path, undefined, err.value())
           }
 
           return String(result)
@@ -4345,30 +5495,50 @@ function __skpm_run(key, context) {
           var fileManager = NSFileManager.defaultManager()
           fileManager.moveItemAtPath_toPath_error(oldPath, newPath, err)
 
-          if (err.value() !== null) {
-            throw new Error(err.value())
+          var error = err.value()
+
+          if (error !== null) {
+            // if there is already a file, we need to overwrite it
+            if (
+              String(error.domain()) === 'NSCocoaErrorDomain' &&
+              Number(error.code()) === 516
+            ) {
+              var err2 = MOPointer.alloc().init()
+              fileManager.replaceItemAtURL_withItemAtURL_backupItemName_options_resultingItemURL_error(
+                NSURL.fileURLWithPath(newPath),
+                NSURL.fileURLWithPath(oldPath),
+                null,
+                NSFileManagerItemReplacementUsingNewMetadataOnly,
+                null,
+                err2
+              )
+              if (err2.value() !== null) {
+                throw fsErrorForPath(oldPath, undefined, err2.value())
+              }
+            } else {
+              throw fsErrorForPath(oldPath, undefined, error)
+            }
           }
         }
 
         module.exports.rmdirSync = function(path) {
           var err = MOPointer.alloc().init()
           var fileManager = NSFileManager.defaultManager()
+          var isDirectory = module.exports.lstatSync(path).isDirectory()
+          if (!isDirectory) {
+            throw fsError('ENOTDIR', {
+              path: path,
+              syscall: 'rmdir',
+            })
+          }
           fileManager.removeItemAtPath_error(path, err)
 
           if (err.value() !== null) {
-            throw new Error(err.value())
+            throw fsErrorForPath(path, true, err.value(), 'rmdir')
           }
         }
 
-        module.exports.statSync = function(path) {
-          var err = MOPointer.alloc().init()
-          var fileManager = NSFileManager.defaultManager()
-          var result = fileManager.attributesOfItemAtPath_error(path, err)
-
-          if (err.value() !== null) {
-            throw new Error(err.value())
-          }
-
+        function parseStat(result) {
           return {
             dev: String(result.NSFileDeviceIdentifier),
             // ino: 48064969, The file system specific "Inode" number for the file.
@@ -4434,6 +5604,28 @@ function __skpm_run(key, context) {
           }
         }
 
+        module.exports.lstatSync = function(path) {
+          var err = MOPointer.alloc().init()
+          var fileManager = NSFileManager.defaultManager()
+          var result = fileManager.attributesOfItemAtPath_error(path, err)
+
+          if (err.value() !== null) {
+            throw fsErrorForPath(path, undefined, err.value())
+          }
+
+          return parseStat(result)
+        }
+
+        // the only difference with lstat is that we resolve symlinks
+        //
+        // > lstat() is identical to stat(), except that if pathname is a symbolic
+        // > link, then it returns information about the link itself, not the file
+        // > that it refers to.
+        // http://man7.org/linux/man-pages/man2/lstat.2.html
+        module.exports.statSync = function(path) {
+          return module.exports.lstatSync(module.exports.realpathSync(path))
+        }
+
         module.exports.symlinkSync = function(target, path) {
           var err = MOPointer.alloc().init()
           var fileManager = NSFileManager.defaultManager()
@@ -4457,10 +5649,17 @@ function __skpm_run(key, context) {
         module.exports.unlinkSync = function(path) {
           var err = MOPointer.alloc().init()
           var fileManager = NSFileManager.defaultManager()
+          var isDirectory = module.exports.lstatSync(path).isDirectory()
+          if (isDirectory) {
+            throw fsError('EPERM', {
+              path: path,
+              syscall: 'unlink',
+            })
+          }
           var result = fileManager.removeItemAtPath_error(path, err)
 
           if (err.value() !== null) {
-            throw new Error(err.value())
+            throw fsErrorForPath(path, false, err.value())
           }
         }
 
@@ -4476,7 +5675,7 @@ function __skpm_run(key, context) {
           )
 
           if (err.value() !== null) {
-            throw new Error(err.value())
+            throw fsErrorForPath(path, undefined, err.value())
           }
         }
 
@@ -4495,7 +5694,7 @@ function __skpm_run(key, context) {
 
         /***/
       },
-      /* 18 */
+      /* 20 */
       /***/ function(module, exports, __webpack_require__) {
         'use strict'
 
@@ -4654,7 +5853,7 @@ function __skpm_run(key, context) {
 
         /***/
       },
-      /* 19 */
+      /* 21 */
       /***/ function(module, exports) {
         exports.read = function(buffer, offset, isLE, mLen, nBytes) {
           var e, m
@@ -4759,7 +5958,7 @@ function __skpm_run(key, context) {
 
         /***/
       },
-      /* 20 */
+      /* 22 */
       /***/ function(module, exports) {
         var toString = {}.toString
 
@@ -4771,8 +5970,8 @@ function __skpm_run(key, context) {
 
         /***/
       },
-      /* 21 */
-      /***/ function(module, exports) {
+      /* 23 */
+      /***/ function(module, exports, __webpack_require__) {
         // Copyright Joyent, Inc. and other Node contributors.
         //
         // Permission is hereby granted, free of charge, to any person obtaining a
@@ -4793,6 +5992,8 @@ function __skpm_run(key, context) {
         // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
         // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
         // USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+        var sketchSpecifics = __webpack_require__(24)
 
         // we only expose the posix implementation since Sketch only runs on macOS
 
@@ -4877,21 +6078,6 @@ function __skpm_run(key, context) {
           return dir + sep + base
         }
 
-        function normalizePath(path) {
-          if (typeof path === 'string') {
-            return path
-          }
-          if (path && path.class && typeof path.class === 'function') {
-            const className = String(path.class())
-            if (className === 'NSString') {
-              return String(path)
-            } else if (className === 'NSURL') {
-              return String(path.path())
-            }
-          }
-          throw new Error('path should be a string')
-        }
-
         var posix = {
           // path.resolve([from ...], to)
           resolve: function resolve() {
@@ -4905,21 +6091,16 @@ function __skpm_run(key, context) {
               i -= 1
             ) {
               var path
-              if (i >= 0) path = arguments[i]
-              else {
-                if (cwd === undefined)
-                  cwd = posix.dirname(
-                    String(
-                      __command
-                        .script()
-                        .URL()
-                        .path()
-                    ) || MSPluginManager.defaultPluginURL()
-                  )
+              if (i >= 0) {
+                path = arguments[i]
+              } else {
+                if (cwd === undefined) {
+                  cwd = posix.dirname(sketchSpecifics.cwd())
+                }
                 path = cwd
               }
 
-              path = normalizePath(path)
+              path = sketchSpecifics.getString(path, 'path')
 
               // Skip empty entries
               if (path.length === 0) {
@@ -4947,7 +6128,7 @@ function __skpm_run(key, context) {
           },
 
           normalize: function normalize(path) {
-            path = normalizePath(path)
+            path = sketchSpecifics.getString(path, 'path')
 
             if (path.length === 0) return '.'
 
@@ -4966,7 +6147,7 @@ function __skpm_run(key, context) {
           },
 
           isAbsolute: function isAbsolute(path) {
-            path = normalizePath(path)
+            path = sketchSpecifics.getString(path, 'path')
             return path.length > 0 && path.charCodeAt(0) === CHAR_FORWARD_SLASH
           },
 
@@ -4975,7 +6156,7 @@ function __skpm_run(key, context) {
             var joined
             for (var i = 0; i < arguments.length; i += 1) {
               var arg = arguments[i]
-              arg = normalizePath(arg)
+              arg = sketchSpecifics.getString(arg, 'path')
               if (arg.length > 0) {
                 if (joined === undefined) joined = arg
                 else joined += '/' + arg
@@ -4986,8 +6167,8 @@ function __skpm_run(key, context) {
           },
 
           relative: function relative(from, to) {
-            from = normalizePath(from)
-            to = normalizePath(to)
+            from = sketchSpecifics.getString(from, 'from path')
+            to = sketchSpecifics.getString(to, 'to path')
 
             if (from === to) return ''
 
@@ -5073,7 +6254,7 @@ function __skpm_run(key, context) {
           },
 
           dirname: function dirname(path) {
-            path = normalizePath(path)
+            path = sketchSpecifics.getString(path, 'path')
             if (path.length === 0) return '.'
             var code = path.charCodeAt(0)
             var hasRoot = code === CHAR_FORWARD_SLASH
@@ -5098,9 +6279,8 @@ function __skpm_run(key, context) {
           },
 
           basename: function basename(path, ext) {
-            if (ext !== undefined && typeof ext !== 'string')
-              throw new Error('ext should be a string')
-            path = normalizePath(path)
+            if (ext !== undefined) ext = sketchSpecifics.getString(ext, 'ext')
+            path = sketchSpecifics.getString(path, 'path')
 
             var start = 0
             var end = -1
@@ -5175,7 +6355,7 @@ function __skpm_run(key, context) {
           },
 
           extname: function extname(path) {
-            path = normalizePath(path)
+            path = sketchSpecifics.getString(path, 'path')
             var startDot = -1
             var startPart = 0
             var end = -1
@@ -5234,7 +6414,7 @@ function __skpm_run(key, context) {
           },
 
           parse: function parse(path) {
-            path = normalizePath(path)
+            path = sketchSpecifics.getString(path, 'path')
 
             var ret = { root: '', dir: '', base: '', ext: '', name: '' }
             if (path.length === 0) return ret
@@ -5322,15 +6502,114 @@ function __skpm_run(key, context) {
           delimiter: ':',
           win32: null,
           posix: null,
+
+          resourcePath: sketchSpecifics.resourcePath,
         }
 
-        posix.posix = posix
-
         module.exports = posix
+        module.exports.posix = posix
 
         /***/
       },
-      /* 22 */
+      /* 24 */
+      /***/ function(module, exports, __webpack_require__) {
+        var util = __webpack_require__(9)
+
+        module.exports.getString = function getString(path, argumentName) {
+          if (!util.isString(path)) {
+            // let's make a special case for NSURL
+            if (util.getNativeClass(path) === 'NSURL') {
+              return String(path.path().copy())
+            }
+            throw new Error(
+              argumentName +
+                ' should be a string. Got ' +
+                typeof path +
+                ' instead.'
+            )
+          }
+          return String(path)
+        }
+
+        module.exports.cwd = function cwd() {
+          if (
+            typeof __command !== 'undefined' &&
+            __command.script() &&
+            __command.script().URL()
+          ) {
+            return String(
+              __command
+                .script()
+                .URL()
+                .path()
+                .copy()
+            )
+          }
+          return String(
+            MSPluginManager.defaultPluginURL()
+              .path()
+              .copy()
+          )
+        }
+
+        module.exports.resourcePath = function resourcePath(resourceName) {
+          if (typeof __command === 'undefined' || !__command.pluginBundle()) {
+            return undefined
+          }
+          var resource = __command
+            .pluginBundle()
+            .urlForResourceNamed(resourceName)
+          if (!resource) {
+            return undefined
+          }
+          return String(resource.path())
+        }
+
+        /***/
+      },
+      /* 25 */
+      /***/ function(module, exports) {
+        module.exports = function isBuffer(arg) {
+          return (
+            arg &&
+            typeof arg === 'object' &&
+            typeof arg.copy === 'function' &&
+            typeof arg.fill === 'function' &&
+            typeof arg.readUInt8 === 'function'
+          )
+        }
+
+        /***/
+      },
+      /* 26 */
+      /***/ function(module, exports) {
+        if (typeof Object.create === 'function') {
+          // implementation from standard node.js 'util' module
+          module.exports = function inherits(ctor, superCtor) {
+            ctor.super_ = superCtor
+            ctor.prototype = Object.create(superCtor.prototype, {
+              constructor: {
+                value: ctor,
+                enumerable: false,
+                writable: true,
+                configurable: true,
+              },
+            })
+          }
+        } else {
+          // old school shim for old browsers
+          module.exports = function inherits(ctor, superCtor) {
+            ctor.super_ = superCtor
+            var TempCtor = function() {}
+            TempCtor.prototype = superCtor.prototype
+            ctor.prototype = new TempCtor()
+            ctor.prototype.constructor = ctor
+          }
+        }
+
+        /***/
+      },
+      /* 27 */
       /***/ function(module, exports, __webpack_require__) {
         /* WEBPACK VAR INJECTION */ ;(function(process, console) {
           // Copyright Joyent, Inc. and other Node contributors.
@@ -5354,7 +6633,50 @@ function __skpm_run(key, context) {
           // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
           // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-          exports.callbackify = __webpack_require__(23)
+          var casting = __webpack_require__(10)
+          var getNativeClass = casting.getNativeClass
+          var isArray = casting.isArray
+          var toArray = casting.toArray
+          var isBoolean = casting.isBoolean
+          var isNumber = casting.isNumber
+          var isString = casting.isString
+          var isUndefined = casting.isUndefined
+          var isRegExp = casting.isRegExp
+          var isObject = casting.isObject
+          var toObject = casting.toObject
+          var isDate = casting.isDate
+          var isError = casting.isError
+          var isFunction = casting.isFunction
+          var isPrimitive = casting.isPrimitive
+
+          // we need to duplicate the method cause cocoascript is angry otherwise
+          function isNull(arg) {
+            return arg === null
+          }
+
+          exports.getNativeClass = getNativeClass
+          exports.isNativeObject = casting.isNativeObject
+          exports.toJSObject = casting.toJSObject
+          exports.isArray = isArray
+          exports.toArray = toArray
+          exports.isBoolean = isBoolean
+          exports.toBoolean = casting.toBoolean
+          exports.isNull = casting.isNull
+          exports.isNullOrUndefined = casting.isNullOrUndefined
+          exports.isNumber = isNumber
+          exports.isString = isString
+          exports.isSymbol = casting.isSymbol
+          exports.isUndefined = isUndefined
+          exports.isRegExp = isRegExp
+          exports.isObject = isObject
+          exports.toObject = toObject
+          exports.isDate = isDate
+          exports.isError = isError
+          exports.isFunction = isFunction
+          exports.isPrimitive = isPrimitive
+          exports.isBuffer = casting.isBuffer
+
+          exports.callbackify = __webpack_require__(28)
 
           var debugs = {}
           var debugEnviron
@@ -5377,7 +6699,7 @@ function __skpm_run(key, context) {
             return debugs[set]
           }
 
-          exports.deprecate = __webpack_require__(24)
+          exports.deprecate = __webpack_require__(29)
 
           var formatRegExp = /%[sdifjoO%]/g
           exports.format = function(f) {
@@ -5637,14 +6959,15 @@ function __skpm_run(key, context) {
             var braces = ['{', '}']
             var noIterator = true
             var raw
+            var constructor
 
             // if it's a MOStruct, we need to catch it early so that it doesn't fail
             if (getNativeClass(value) === 'MOStruct') {
               braces = [value.name() + ' {', '}']
               value = toObject(value)
-            }
-
-            if (value && value._isWrappedObject) {
+              constructor = 'MOStruct'
+            } else if (value && value._isWrappedObject) {
+              constructor = value.type
               const propertyList = value.constructor._DefinedPropertiesKey
               const json = {}
               Object.keys(propertyList).forEach(k => {
@@ -5657,7 +6980,12 @@ function __skpm_run(key, context) {
                 }
               })
               value = json
+              braces = [constructor + ' {', '}']
+            } else {
+              constructor = getIdentificationOf(value)
             }
+
+            var prefix = constructor ? constructor + ' ' : ''
 
             var keys
 
@@ -5668,9 +6996,6 @@ function __skpm_run(key, context) {
             }
 
             var keyLength = keys.length
-
-            var constructor = getIdentificationOf(value)
-            var prefix = constructor ? constructor + ' ' : ''
 
             if (isArray(value)) {
               noIterator = false
@@ -6106,233 +7431,16 @@ function __skpm_run(key, context) {
             return extraLn + braces[0] + ln + str + ' ' + braces[1]
           }
 
-          // check if the argument is a native sketch object
-          function getNativeClass(arg) {
-            try {
-              return (
-                arg &&
-                arg.isKindOfClass &&
-                typeof arg.class === 'function' &&
-                String(arg.class())
-              )
-            } catch (err) {
-              return undefined
-            }
-          }
-          exports.getNativeClass = getNativeClass
+          exports.isDeepStrictEqual = __webpack_require__(30)
 
-          function isNativeObject(arg) {
-            return !!getNativeClass(arg)
-          }
-          exports.isNativeObject = isNativeObject
-
-          /**
-           * Coerce common NSObjects to their JS counterparts
-           * @param arg Any object
-           *
-           * Converts NSDictionary, NSArray, NSStirng, and NSNumber to
-           * native JS equivilents.
-           */
-          function toJSObject(arg) {
-            if (arg) {
-              if (isObject(arg)) {
-                return toObject(arg)
-              } else if (isArray(arg)) {
-                return toArray(arg)
-              } else if (isString(arg)) {
-                return String(arg)
-              } else if (isNumber(arg)) {
-                return Number(arg)
-              } else if (isBoolean(arg)) {
-                return Boolean(Number(arg))
-              }
-            }
-            return arg
-          }
-          exports.toJSObject = toJSObject
-
-          var assimilatedArrays = [
-            'NSArray',
-            'NSMutableArray',
-            '__NSArrayM',
-            '__NSSingleObjectArrayI',
-            '__NSArray0',
-            '__NSArrayI',
-            '__NSArrayReversed',
-            '__NSCFArray',
-            '__NSPlaceholderArray',
-          ]
-          function isArray(ar) {
-            if (Array.isArray(ar)) {
-              return true
-            }
-            var type = getNativeClass(ar)
-            return assimilatedArrays.indexOf(type) !== -1
-          }
-          exports.isArray = isArray
-
-          function toArray(object) {
-            if (Array.isArray(object)) {
-              return object
-            }
-            var arr = []
-            for (var j = 0; j < (object || []).length; j += 1) {
-              arr.push(object[j])
-            }
-            return arr
-          }
-          exports.toArray = toArray
-
-          var assimilatedBooleans = ['__NSCFBoolean']
-          function isBoolean(arg) {
-            if (typeof arg === 'boolean') {
-              return true
-            }
-            var type = getNativeClass(arg)
-            return assimilatedBooleans.indexOf(type) !== -1
-          }
-          exports.isBoolean = isBoolean
-
-          function isNull(arg) {
-            return arg === null
-          }
-          exports.isNull = isNull
-
-          function isNullOrUndefined(arg) {
-            return arg == null
-          }
-          exports.isNullOrUndefined = isNullOrUndefined
-
-          var assimilatedNumbers = ['__NSCFNumber', 'NSNumber']
-          function isNumber(arg) {
-            if (typeof arg === 'number') {
-              return true
-            }
-            var type = getNativeClass(arg)
-            return assimilatedNumbers.indexOf(type) !== -1
-          }
-          exports.isNumber = isNumber
-
-          var assimilatedStrings = [
-            'NSString',
-            'NSMutableString',
-            '__NSCFString',
-            'NSTaggedPointerString',
-            '__NSCFConstantString',
-          ]
-          function isString(arg) {
-            if (typeof arg === 'string') {
-              return true
-            }
-            var type = getNativeClass(arg)
-            return assimilatedStrings.indexOf(type) !== -1
-          }
-          exports.isString = isString
-
-          function isSymbol(arg) {
-            return typeof arg === 'symbol'
-          }
-          exports.isSymbol = isSymbol
-
-          function isUndefined(arg) {
-            return typeof arg === 'undefined'
-          }
-          exports.isUndefined = isUndefined
-
-          function isRegExp(re) {
-            return isObject(re) && objectToString(re) === '[object RegExp]'
-          }
-          exports.isRegExp = isRegExp
-
-          var assimilatedObjects = [
-            'NSDictionary',
-            'NSMutableDictionary',
-            '__NSDictionaryM',
-            '__NSSingleEntryDictionaryI',
-            '__NSDictionaryI',
-            '__NSCFDictionary',
-            'MOStruct',
-            '__NSFrozenDictionaryM',
-            '__NSDictionary0',
-            '__NSPlaceholderDictionary',
-          ]
-          function isObject(arg) {
-            var type = getNativeClass(arg)
-            if (typeof arg === 'object' && arg !== null && !type) {
-              return true
-            }
-            return assimilatedObjects.indexOf(type) !== -1
-          }
-          exports.isObject = isObject
-
-          function toObject(obj) {
-            var type = getNativeClass(obj)
-            if (type === 'MOStruct') {
-              return obj.memberNames().reduce(function(prev, k) {
-                prev[k] = obj[k]
-                return prev
-              }, {})
-            } else if (typeof obj === 'object') {
-              return obj
-            }
-            return Object(obj)
-          }
-          exports.toObject = toObject
-
-          function isDate(d) {
-            return isObject(d) && objectToString(d) === '[object Date]'
-          }
-          exports.isDate = isDate
-
-          function isError(e) {
-            return (
-              isObject(e) &&
-              (objectToString(e) === '[object Error]' || e instanceof Error)
-            )
-          }
-          exports.isError = isError
-
-          function isFunction(arg) {
-            return typeof arg === 'function' || arg instanceof MOMethod
-          }
-          exports.isFunction = isFunction
-
-          function isPrimitive(arg) {
-            return (
-              isNull(arg) ||
-              isBoolean(arg) ||
-              isNumber(arg) ||
-              isString(arg) ||
-              isSymbol(arg) ||
-              isUndefined(arg)
-            )
-          }
-          exports.isPrimitive = isPrimitive
-
-          exports.isBuffer = function isBuffer(arg) {
-            return (
-              arg &&
-              typeof arg === 'object' &&
-              typeof arg.copy === 'function' &&
-              typeof arg.fill === 'function' &&
-              typeof arg.readUInt8 === 'function'
-            )
-          }
-
-          function objectToString(o) {
-            return Object.prototype.toString.call(o)
-          }
-
-          exports.isDeepStrictEqual = __webpack_require__(25)
-
-          exports.promisify = __webpack_require__(26)
+          exports.promisify = __webpack_require__(31)
 
           /* WEBPACK VAR INJECTION */
         }.call(exports, __webpack_require__(5), __webpack_require__(1)))
 
         /***/
       },
-      /* 23 */
+      /* 28 */
       /***/ function(module, exports) {
         module.exports = function callbackify(original) {
           return function(callback) {
@@ -6352,7 +7460,7 @@ function __skpm_run(key, context) {
 
         /***/
       },
-      /* 24 */
+      /* 29 */
       /***/ function(module, exports, __webpack_require__) {
         /* WEBPACK VAR INJECTION */ ;(function(console) {
           // Mark that a method should not be used.
@@ -6376,7 +7484,7 @@ function __skpm_run(key, context) {
 
         /***/
       },
-      /* 25 */
+      /* 30 */
       /***/ function(module, exports) {
         /*
 Copyright (c) 2008-2016 Pivotal Labs
@@ -6409,7 +7517,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             typeof a !== 'object' ||
             typeof b !== 'object' ||
             Array.isArray(a) ||
-            Array.isArray(b)
+            Array.isArray(b) ||
+            a === null ||
+            b === null
           ) {
             return undefined
           }
@@ -6697,9 +7807,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
         /***/
       },
-      /* 26 */
+      /* 31 */
       /***/ function(module, exports, __webpack_require__) {
         /* WEBPACK VAR INJECTION */ ;(function(Promise) {
+          var { toArray } = __webpack_require__(10)
           var customPromisify = 'promisify'
 
           function promisify(fn) {
@@ -6724,11 +7835,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
           module.exports = promisify
 
           /* WEBPACK VAR INJECTION */
-        }.call(exports, __webpack_require__(3)))
+        }.call(exports, __webpack_require__(2)))
 
         /***/
       },
-      /* 27 */
+      /* 32 */
       /***/ function(module, exports, __webpack_require__) {
         /* WEBPACK VAR INJECTION */ ;(function(
           setImmediate,
@@ -6743,8 +7854,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             true
               ? factory(exports)
               : typeof define === 'function' && define.amd
-                ? define(['exports'], factory)
-                : factory((global.async = global.async || {}))
+              ? define(['exports'], factory)
+              : factory((global.async = global.async || {}))
           })(this, function(exports) {
             'use strict'
 
@@ -12617,32 +13728,32 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
           __webpack_require__(6)['setImmediate'],
           __webpack_require__(5),
           __webpack_require__(0)['setTimeout'],
-          __webpack_require__(2),
-          __webpack_require__(9)(module),
+          __webpack_require__(4),
+          __webpack_require__(11)(module),
           __webpack_require__(1),
           __webpack_require__(0)['clearTimeout']
         ))
 
         /***/
       },
-      /* 28 */
+      /* 33 */
       /***/ function(module, exports, __webpack_require__) {
         /* WEBPACK VAR INJECTION */ ;(function(global, module) {
           var __WEBPACK_AMD_DEFINE_RESULT__
-          /**
-           * @license
-           * Lodash <https://lodash.com/>
-           * Copyright JS Foundation and other contributors <https://js.foundation/>
-           * Released under MIT license <https://lodash.com/license>
-           * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
-           * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-           */
+            /**
+             * @license
+             * Lodash <https://lodash.com/>
+             * Copyright JS Foundation and other contributors <https://js.foundation/>
+             * Released under MIT license <https://lodash.com/license>
+             * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+             * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+             */
           ;(function() {
             /** Used as a safe reference for `undefined` in pre-ES5 environments. */
             var undefined
 
             /** Used as the semantic version number. */
-            var VERSION = '4.17.10'
+            var VERSION = '4.17.11'
 
             /** Used as the size to enable large array optimizations. */
             var LARGE_ARRAY_SIZE = 200
@@ -12962,7 +14073,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             )
 
             /** Used to detect strings that need a more robust regexp to match words. */
-            var reHasUnicodeWord = /[a-z][A-Z]|[A-Z]{2,}[a-z]|[0-9][a-zA-Z]|[a-zA-Z][0-9]|[^a-zA-Z0-9 ]/
+            var reHasUnicodeWord = /[a-z][A-Z]|[A-Z]{2}[a-z]|[0-9][a-zA-Z]|[a-zA-Z][0-9]|[^a-zA-Z0-9 ]/
 
             /** Used to assign default `context` object properties. */
             var contextProps = [
@@ -14133,18 +15244,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                 }
               }
               return result
-            }
-
-            /**
-             * Gets the value at `key`, unless `key` is "__proto__".
-             *
-             * @private
-             * @param {Object} object The object to query.
-             * @param {string} key The key of the property to get.
-             * @returns {*} Returns the property value.
-             */
-            function safeGet(object, key) {
-              return key == '__proto__' ? undefined : object[key]
             }
 
             /**
@@ -15690,8 +16789,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                     ? getAllKeysIn
                     : getAllKeys
                   : isFlat
-                    ? keysIn
-                    : keys
+                  ? keysIn
+                  : keys
 
                 var props = isArr ? undefined : keysFunc(value)
                 arrayEach(props || value, function(subValue, key) {
@@ -16818,10 +17917,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                     newValue = objValue
                     if (isArguments(objValue)) {
                       newValue = toPlainObject(objValue)
-                    } else if (
-                      !isObject(objValue) ||
-                      (srcIndex && isFunction(objValue))
-                    ) {
+                    } else if (!isObject(objValue) || isFunction(objValue)) {
                       newValue = initCloneObject(srcValue)
                     }
                   } else {
@@ -17148,8 +18244,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                       newValue = isObject(objValue)
                         ? objValue
                         : isIndex(path[index + 1])
-                          ? []
-                          : {}
+                        ? []
+                        : {}
                     }
                   }
                   assignValue(nested, key, newValue)
@@ -20228,6 +21324,22 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                     : undefined
                 }
                 return array
+              }
+
+              /**
+               * Gets the value at `key`, unless `key` is "__proto__".
+               *
+               * @private
+               * @param {Object} object The object to query.
+               * @param {string} key The key of the property to get.
+               * @returns {*} Returns the property value.
+               */
+              function safeGet(object, key) {
+                if (key == '__proto__') {
+                  return
+                }
+
+                return object[key]
               }
 
               /**
@@ -26222,8 +27334,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                     tag == mapTag
                       ? mapToArray
                       : tag == setTag
-                        ? setToArray
-                        : values
+                      ? setToArray
+                      : values
 
                 return func(value)
               }
@@ -26376,8 +27488,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                 return isBinary || reIsOctal.test(value)
                   ? freeParseInt(value.slice(2), isBinary ? 2 : 8)
                   : reIsBadHex.test(value)
-                    ? NAN
-                    : +value
+                  ? NAN
+                  : +value
               }
 
               /**
@@ -26440,8 +27552,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                       MAX_SAFE_INTEGER
                     )
                   : value === 0
-                    ? value
-                    : 0
+                  ? value
+                  : 0
               }
 
               /**
@@ -31225,26 +32337,30 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
           }.call(this))
 
           /* WEBPACK VAR INJECTION */
-        }.call(exports, __webpack_require__(2), __webpack_require__(9)(module)))
+        }.call(
+          exports,
+          __webpack_require__(4),
+          __webpack_require__(11)(module)
+        ))
 
         /***/
       },
-      /* 29 */
+      /* 34 */
       /***/ function(module, exports) {
         module.exports = require('sketch')
 
         /***/
       },
-      /* 30 */
+      /* 35 */
       /***/ function(module, exports, __webpack_require__) {
         /* WEBPACK VAR INJECTION */ ;(function(Promise) {
           /* globals NSJSONSerialization NSJSONWritingPrettyPrinted NSDictionary NSHTTPURLResponse NSString NSASCIIStringEncoding NSUTF8StringEncoding coscript NSURL NSMutableURLRequest NSMutableData NSURLConnection */
-          var _ObjCClass = __webpack_require__(31)
+          var _ObjCClass = __webpack_require__(36)
 
           var ObjCClass = _ObjCClass.default
           var Buffer
           try {
-            Buffer = __webpack_require__(4).Buffer
+            Buffer = __webpack_require__(3).Buffer
           } catch (err) {}
 
           function response(httpResponse, data) {
@@ -31491,11 +32607,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
           module.exports = fetch
 
           /* WEBPACK VAR INJECTION */
-        }.call(exports, __webpack_require__(3)))
+        }.call(exports, __webpack_require__(2)))
 
         /***/
       },
-      /* 31 */
+      /* 36 */
       /***/ function(module, exports, __webpack_require__) {
         'use strict'
 
@@ -31505,7 +32621,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         exports.SuperCall = undefined
         exports.default = ObjCClass
 
-        var _runtime = __webpack_require__(32)
+        var _runtime = __webpack_require__(37)
 
         exports.SuperCall = _runtime.SuperCall
 
@@ -31577,7 +32693,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
         /***/
       },
-      /* 32 */
+      /* 37 */
       /***/ function(module, exports, __webpack_require__) {
         'use strict'
 
@@ -31713,15 +32829,15 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
         /***/
       },
-      /* 33 */
+      /* 38 */
       /***/ function(module, exports, __webpack_require__) {
         var Buffer
         try {
-          Buffer = __webpack_require__(4).Buffer
+          Buffer = __webpack_require__(3).Buffer
         } catch (err) {}
         var util
         try {
-          util = __webpack_require__(34)
+          util = __webpack_require__(9)
         } catch (err) {}
 
         var boundary = 'Boundary-' + NSUUID.UUID().UUIDString()
@@ -31794,724 +32910,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
         /***/
       },
-      /* 34 */
-      /***/ function(module, exports, __webpack_require__) {
-        /* WEBPACK VAR INJECTION */ ;(function(global, process, console) {
-          // Copyright Joyent, Inc. and other Node contributors.
-          //
-          // Permission is hereby granted, free of charge, to any person obtaining a
-          // copy of this software and associated documentation files (the
-          // "Software"), to deal in the Software without restriction, including
-          // without limitation the rights to use, copy, modify, merge, publish,
-          // distribute, sublicense, and/or sell copies of the Software, and to permit
-          // persons to whom the Software is furnished to do so, subject to the
-          // following conditions:
-          //
-          // The above copyright notice and this permission notice shall be included
-          // in all copies or substantial portions of the Software.
-          //
-          // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-          // OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-          // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-          // NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-          // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-          // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-          // USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-          var formatRegExp = /%[sdj%]/g
-          exports.format = function(f) {
-            if (!isString(f)) {
-              var objects = []
-              for (var i = 0; i < arguments.length; i++) {
-                objects.push(inspect(arguments[i]))
-              }
-              return objects.join(' ')
-            }
-
-            var i = 1
-            var args = arguments
-            var len = args.length
-            var str = String(f).replace(formatRegExp, function(x) {
-              if (x === '%%') return '%'
-              if (i >= len) return x
-              switch (x) {
-                case '%s':
-                  return String(args[i++])
-                case '%d':
-                  return Number(args[i++])
-                case '%j':
-                  try {
-                    return JSON.stringify(args[i++])
-                  } catch (_) {
-                    return '[Circular]'
-                  }
-                default:
-                  return x
-              }
-            })
-            for (var x = args[i]; i < len; x = args[++i]) {
-              if (isNull(x) || !isObject(x)) {
-                str += ' ' + x
-              } else {
-                str += ' ' + inspect(x)
-              }
-            }
-            return str
-          }
-
-          // Mark that a method should not be used.
-          // Returns a modified function which warns once by default.
-          // If --no-deprecation is set, then it is a no-op.
-          exports.deprecate = function(fn, msg) {
-            // Allow for deprecating things in the process of starting up.
-            if (isUndefined(global.process)) {
-              return function() {
-                return exports.deprecate(fn, msg).apply(this, arguments)
-              }
-            }
-
-            if (process.noDeprecation === true) {
-              return fn
-            }
-
-            var warned = false
-            function deprecated() {
-              if (!warned) {
-                if (process.throwDeprecation) {
-                  throw new Error(msg)
-                } else if (process.traceDeprecation) {
-                  console.trace(msg)
-                } else {
-                  console.error(msg)
-                }
-                warned = true
-              }
-              return fn.apply(this, arguments)
-            }
-
-            return deprecated
-          }
-
-          var debugs = {}
-          var debugEnviron
-          exports.debuglog = function(set) {
-            if (isUndefined(debugEnviron))
-              debugEnviron = process.env.NODE_DEBUG || ''
-            set = set.toUpperCase()
-            if (!debugs[set]) {
-              if (new RegExp('\\b' + set + '\\b', 'i').test(debugEnviron)) {
-                var pid = process.pid
-                debugs[set] = function() {
-                  var msg = exports.format.apply(exports, arguments)
-                  console.error('%s %d: %s', set, pid, msg)
-                }
-              } else {
-                debugs[set] = function() {}
-              }
-            }
-            return debugs[set]
-          }
-
-          /**
-           * Echos the value of a value. Trys to print the value out
-           * in the best way possible given the different types.
-           *
-           * @param {Object} obj The object to print out.
-           * @param {Object} opts Optional options object that alters the output.
-           */
-          /* legacy: obj, showHidden, depth, colors*/
-          function inspect(obj, opts) {
-            // default options
-            var ctx = {
-              seen: [],
-              stylize: stylizeNoColor,
-            }
-            // legacy...
-            if (arguments.length >= 3) ctx.depth = arguments[2]
-            if (arguments.length >= 4) ctx.colors = arguments[3]
-            if (isBoolean(opts)) {
-              // legacy...
-              ctx.showHidden = opts
-            } else if (opts) {
-              // got an "options" object
-              exports._extend(ctx, opts)
-            }
-            // set default options
-            if (isUndefined(ctx.showHidden)) ctx.showHidden = false
-            if (isUndefined(ctx.depth)) ctx.depth = 2
-            if (isUndefined(ctx.colors)) ctx.colors = false
-            if (isUndefined(ctx.customInspect)) ctx.customInspect = true
-            if (ctx.colors) ctx.stylize = stylizeWithColor
-            return formatValue(ctx, obj, ctx.depth)
-          }
-          exports.inspect = inspect
-
-          // http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
-          inspect.colors = {
-            bold: [1, 22],
-            italic: [3, 23],
-            underline: [4, 24],
-            inverse: [7, 27],
-            white: [37, 39],
-            grey: [90, 39],
-            black: [30, 39],
-            blue: [34, 39],
-            cyan: [36, 39],
-            green: [32, 39],
-            magenta: [35, 39],
-            red: [31, 39],
-            yellow: [33, 39],
-          }
-
-          // Don't use 'blue' not visible on cmd.exe
-          inspect.styles = {
-            special: 'cyan',
-            number: 'yellow',
-            boolean: 'yellow',
-            undefined: 'grey',
-            null: 'bold',
-            string: 'green',
-            date: 'magenta',
-            // "name": intentionally not styling
-            regexp: 'red',
-          }
-
-          function stylizeWithColor(str, styleType) {
-            var style = inspect.styles[styleType]
-
-            if (style) {
-              return (
-                '\u001b[' +
-                inspect.colors[style][0] +
-                'm' +
-                str +
-                '\u001b[' +
-                inspect.colors[style][1] +
-                'm'
-              )
-            } else {
-              return str
-            }
-          }
-
-          function stylizeNoColor(str, styleType) {
-            return str
-          }
-
-          function arrayToHash(array) {
-            var hash = {}
-
-            array.forEach(function(val, idx) {
-              hash[val] = true
-            })
-
-            return hash
-          }
-
-          function formatValue(ctx, value, recurseTimes) {
-            // Provide a hook for user-specified inspect functions.
-            // Check that value is an object with an inspect function on it
-            if (
-              ctx.customInspect &&
-              value &&
-              isFunction(value.inspect) &&
-              // Filter out the util module, it's inspect function is special
-              value.inspect !== exports.inspect &&
-              // Also filter out any prototype objects using the circular check.
-              !(value.constructor && value.constructor.prototype === value)
-            ) {
-              var ret = value.inspect(recurseTimes, ctx)
-              if (!isString(ret)) {
-                ret = formatValue(ctx, ret, recurseTimes)
-              }
-              return ret
-            }
-
-            // Primitive types cannot have properties
-            var primitive = formatPrimitive(ctx, value)
-            if (primitive) {
-              return primitive
-            }
-
-            // Look up the keys of the object.
-            var keys = Object.keys(value)
-            var visibleKeys = arrayToHash(keys)
-
-            if (ctx.showHidden) {
-              keys = Object.getOwnPropertyNames(value)
-            }
-
-            // IE doesn't make error fields non-enumerable
-            // http://msdn.microsoft.com/en-us/library/ie/dww52sbt(v=vs.94).aspx
-            if (
-              isError(value) &&
-              (keys.indexOf('message') >= 0 || keys.indexOf('description') >= 0)
-            ) {
-              return formatError(value)
-            }
-
-            // Some type of object without properties can be shortcutted.
-            if (keys.length === 0) {
-              if (isFunction(value)) {
-                var name = value.name ? ': ' + value.name : ''
-                return ctx.stylize('[Function' + name + ']', 'special')
-              }
-              if (isRegExp(value)) {
-                return ctx.stylize(
-                  RegExp.prototype.toString.call(value),
-                  'regexp'
-                )
-              }
-              if (isDate(value)) {
-                return ctx.stylize(Date.prototype.toString.call(value), 'date')
-              }
-              if (isError(value)) {
-                return formatError(value)
-              }
-            }
-
-            var base = '',
-              array = false,
-              braces = ['{', '}']
-
-            // Make Array say that they are Array
-            if (isArray(value)) {
-              array = true
-              braces = ['[', ']']
-            }
-
-            // Make functions say that they are functions
-            if (isFunction(value)) {
-              var n = value.name ? ': ' + value.name : ''
-              base = ' [Function' + n + ']'
-            }
-
-            // Make RegExps say that they are RegExps
-            if (isRegExp(value)) {
-              base = ' ' + RegExp.prototype.toString.call(value)
-            }
-
-            // Make dates with properties first say the date
-            if (isDate(value)) {
-              base = ' ' + Date.prototype.toUTCString.call(value)
-            }
-
-            // Make error with message first say the error
-            if (isError(value)) {
-              base = ' ' + formatError(value)
-            }
-
-            if (keys.length === 0 && (!array || value.length == 0)) {
-              return braces[0] + base + braces[1]
-            }
-
-            if (recurseTimes < 0) {
-              if (isRegExp(value)) {
-                return ctx.stylize(
-                  RegExp.prototype.toString.call(value),
-                  'regexp'
-                )
-              } else {
-                return ctx.stylize('[Object]', 'special')
-              }
-            }
-
-            ctx.seen.push(value)
-
-            var output
-            if (array) {
-              output = formatArray(ctx, value, recurseTimes, visibleKeys, keys)
-            } else {
-              output = keys.map(function(key) {
-                return formatProperty(
-                  ctx,
-                  value,
-                  recurseTimes,
-                  visibleKeys,
-                  key,
-                  array
-                )
-              })
-            }
-
-            ctx.seen.pop()
-
-            return reduceToSingleString(output, base, braces)
-          }
-
-          function formatPrimitive(ctx, value) {
-            if (isUndefined(value)) return ctx.stylize('undefined', 'undefined')
-            if (isString(value)) {
-              var simple =
-                "'" +
-                JSON.stringify(value)
-                  .replace(/^"|"$/g, '')
-                  .replace(/'/g, "\\'")
-                  .replace(/\\"/g, '"') +
-                "'"
-              return ctx.stylize(simple, 'string')
-            }
-            if (isNumber(value)) return ctx.stylize('' + value, 'number')
-            if (isBoolean(value)) return ctx.stylize('' + value, 'boolean')
-            // For some reason typeof null is "object", so special case here.
-            if (isNull(value)) return ctx.stylize('null', 'null')
-          }
-
-          function formatError(value) {
-            return '[' + Error.prototype.toString.call(value) + ']'
-          }
-
-          function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
-            var output = []
-            for (var i = 0, l = value.length; i < l; ++i) {
-              if (hasOwnProperty(value, String(i))) {
-                output.push(
-                  formatProperty(
-                    ctx,
-                    value,
-                    recurseTimes,
-                    visibleKeys,
-                    String(i),
-                    true
-                  )
-                )
-              } else {
-                output.push('')
-              }
-            }
-            keys.forEach(function(key) {
-              if (!key.match(/^\d+$/)) {
-                output.push(
-                  formatProperty(
-                    ctx,
-                    value,
-                    recurseTimes,
-                    visibleKeys,
-                    key,
-                    true
-                  )
-                )
-              }
-            })
-            return output
-          }
-
-          function formatProperty(
-            ctx,
-            value,
-            recurseTimes,
-            visibleKeys,
-            key,
-            array
-          ) {
-            var name, str, desc
-            desc = Object.getOwnPropertyDescriptor(value, key) || {
-              value: value[key],
-            }
-            if (desc.get) {
-              if (desc.set) {
-                str = ctx.stylize('[Getter/Setter]', 'special')
-              } else {
-                str = ctx.stylize('[Getter]', 'special')
-              }
-            } else {
-              if (desc.set) {
-                str = ctx.stylize('[Setter]', 'special')
-              }
-            }
-            if (!hasOwnProperty(visibleKeys, key)) {
-              name = '[' + key + ']'
-            }
-            if (!str) {
-              if (ctx.seen.indexOf(desc.value) < 0) {
-                if (isNull(recurseTimes)) {
-                  str = formatValue(ctx, desc.value, null)
-                } else {
-                  str = formatValue(ctx, desc.value, recurseTimes - 1)
-                }
-                if (str.indexOf('\n') > -1) {
-                  if (array) {
-                    str = str
-                      .split('\n')
-                      .map(function(line) {
-                        return '  ' + line
-                      })
-                      .join('\n')
-                      .substr(2)
-                  } else {
-                    str =
-                      '\n' +
-                      str
-                        .split('\n')
-                        .map(function(line) {
-                          return '   ' + line
-                        })
-                        .join('\n')
-                  }
-                }
-              } else {
-                str = ctx.stylize('[Circular]', 'special')
-              }
-            }
-            if (isUndefined(name)) {
-              if (array && key.match(/^\d+$/)) {
-                return str
-              }
-              name = JSON.stringify('' + key)
-              if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
-                name = name.substr(1, name.length - 2)
-                name = ctx.stylize(name, 'name')
-              } else {
-                name = name
-                  .replace(/'/g, "\\'")
-                  .replace(/\\"/g, '"')
-                  .replace(/(^"|"$)/g, "'")
-                name = ctx.stylize(name, 'string')
-              }
-            }
-
-            return name + ': ' + str
-          }
-
-          function reduceToSingleString(output, base, braces) {
-            var numLinesEst = 0
-            var length = output.reduce(function(prev, cur) {
-              numLinesEst++
-              if (cur.indexOf('\n') >= 0) numLinesEst++
-              return prev + cur.replace(/\u001b\[\d\d?m/g, '').length + 1
-            }, 0)
-
-            if (length > 60) {
-              return (
-                braces[0] +
-                (base === '' ? '' : base + '\n ') +
-                ' ' +
-                output.join(',\n  ') +
-                ' ' +
-                braces[1]
-              )
-            }
-
-            return braces[0] + base + ' ' + output.join(', ') + ' ' + braces[1]
-          }
-
-          // NOTE: These type checking functions intentionally don't use `instanceof`
-          // because it is fragile and can be easily faked with `Object.create()`.
-          function isArray(ar) {
-            return Array.isArray(ar)
-          }
-          exports.isArray = isArray
-
-          function isBoolean(arg) {
-            return typeof arg === 'boolean'
-          }
-          exports.isBoolean = isBoolean
-
-          function isNull(arg) {
-            return arg === null
-          }
-          exports.isNull = isNull
-
-          function isNullOrUndefined(arg) {
-            return arg == null
-          }
-          exports.isNullOrUndefined = isNullOrUndefined
-
-          function isNumber(arg) {
-            return typeof arg === 'number'
-          }
-          exports.isNumber = isNumber
-
-          function isString(arg) {
-            return typeof arg === 'string'
-          }
-          exports.isString = isString
-
-          function isSymbol(arg) {
-            return typeof arg === 'symbol'
-          }
-          exports.isSymbol = isSymbol
-
-          function isUndefined(arg) {
-            return arg === void 0
-          }
-          exports.isUndefined = isUndefined
-
-          function isRegExp(re) {
-            return isObject(re) && objectToString(re) === '[object RegExp]'
-          }
-          exports.isRegExp = isRegExp
-
-          function isObject(arg) {
-            return typeof arg === 'object' && arg !== null
-          }
-          exports.isObject = isObject
-
-          function isDate(d) {
-            return isObject(d) && objectToString(d) === '[object Date]'
-          }
-          exports.isDate = isDate
-
-          function isError(e) {
-            return (
-              isObject(e) &&
-              (objectToString(e) === '[object Error]' || e instanceof Error)
-            )
-          }
-          exports.isError = isError
-
-          function isFunction(arg) {
-            return typeof arg === 'function'
-          }
-          exports.isFunction = isFunction
-
-          function isPrimitive(arg) {
-            return (
-              arg === null ||
-              typeof arg === 'boolean' ||
-              typeof arg === 'number' ||
-              typeof arg === 'string' ||
-              typeof arg === 'symbol' || // ES6 symbol
-              typeof arg === 'undefined'
-            )
-          }
-          exports.isPrimitive = isPrimitive
-
-          exports.isBuffer = __webpack_require__(35)
-
-          function objectToString(o) {
-            return Object.prototype.toString.call(o)
-          }
-
-          function pad(n) {
-            return n < 10 ? '0' + n.toString(10) : n.toString(10)
-          }
-
-          var months = [
-            'Jan',
-            'Feb',
-            'Mar',
-            'Apr',
-            'May',
-            'Jun',
-            'Jul',
-            'Aug',
-            'Sep',
-            'Oct',
-            'Nov',
-            'Dec',
-          ]
-
-          // 26 Feb 16:19:34
-          function timestamp() {
-            var d = new Date()
-            var time = [
-              pad(d.getHours()),
-              pad(d.getMinutes()),
-              pad(d.getSeconds()),
-            ].join(':')
-            return [d.getDate(), months[d.getMonth()], time].join(' ')
-          }
-
-          // log is just a thin wrapper to console.log that prepends a timestamp
-          exports.log = function() {
-            console.log(
-              '%s - %s',
-              timestamp(),
-              exports.format.apply(exports, arguments)
-            )
-          }
-
-          /**
-           * Inherit the prototype methods from one constructor into another.
-           *
-           * The Function.prototype.inherits from lang.js rewritten as a standalone
-           * function (not on Function.prototype). NOTE: If this file is to be loaded
-           * during bootstrapping this function needs to be rewritten using some native
-           * functions as prototype setup using normal JavaScript does not work as
-           * expected during bootstrapping (see mirror.js in r114903).
-           *
-           * @param {function} ctor Constructor function which needs to inherit the
-           *     prototype.
-           * @param {function} superCtor Constructor function to inherit prototype from.
-           */
-          exports.inherits = __webpack_require__(36)
-
-          exports._extend = function(origin, add) {
-            // Don't do anything if add isn't an object
-            if (!add || !isObject(add)) return origin
-
-            var keys = Object.keys(add)
-            var i = keys.length
-            while (i--) {
-              origin[keys[i]] = add[keys[i]]
-            }
-            return origin
-          }
-
-          function hasOwnProperty(obj, prop) {
-            return Object.prototype.hasOwnProperty.call(obj, prop)
-          }
-
-          /* WEBPACK VAR INJECTION */
-        }.call(
-          exports,
-          __webpack_require__(2),
-          __webpack_require__(5),
-          __webpack_require__(1)
-        ))
-
-        /***/
-      },
-      /* 35 */
-      /***/ function(module, exports) {
-        module.exports = function isBuffer(arg) {
-          return (
-            arg &&
-            typeof arg === 'object' &&
-            typeof arg.copy === 'function' &&
-            typeof arg.fill === 'function' &&
-            typeof arg.readUInt8 === 'function'
-          )
-        }
-
-        /***/
-      },
-      /* 36 */
-      /***/ function(module, exports) {
-        if (typeof Object.create === 'function') {
-          // implementation from standard node.js 'util' module
-          module.exports = function inherits(ctor, superCtor) {
-            ctor.super_ = superCtor
-            ctor.prototype = Object.create(superCtor.prototype, {
-              constructor: {
-                value: ctor,
-                enumerable: false,
-                writable: true,
-                configurable: true,
-              },
-            })
-          }
-        } else {
-          // old school shim for old browsers
-          module.exports = function inherits(ctor, superCtor) {
-            ctor.super_ = superCtor
-            var TempCtor = function() {}
-            TempCtor.prototype = superCtor.prototype
-            ctor.prototype = new TempCtor()
-            ctor.prototype.constructor = ctor
-          }
-        }
-
-        /***/
-      },
-      /* 37 */
-      /***/ function(module, exports) {
-        module.exports = require('sketch/dom')
-
-        /***/
-      },
-      /* 38 */
+      /* 39 */
       /***/ function(module, exports) {
         module.exports = require('sketch/ui')
 

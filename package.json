@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@skpm/builder": "^0.4.2",
+    "@skpm/internal-utils": "^0.1.13",
     "@types/async": "^2.0.50",
     "@types/form-data": "^2.2.1",
     "@types/lodash": "^4.14.116",
@@ -48,11 +49,11 @@
     "@skpm/buffer": "^0.1.1",
     "@skpm/fs": "^0.2.2",
     "@skpm/path": "^0.1.0",
-    "@skpm/util": "^0.1.18",
     "async": "^2.6.1",
     "form-data": "^2.3.3",
     "lodash": "^4.17.10",
     "sketch-polyfill-fetch": "^0.4.3",
-    "sketch-utils": "skpm/sketch-utils"
+    "sketch-utils": "skpm/sketch-utils",
+    "@skpm/util": "^0.1.26"
   }
 }
